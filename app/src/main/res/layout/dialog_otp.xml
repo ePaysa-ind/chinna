@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/padding_large"
+    android:background="@color/dark_background">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Enter OTP"
+        android:textSize="@dimen/text_size_title"
+        android:textStyle="bold"
+        android:textColor="@color/dark_text_primary" />
+
+    <TextView
+        android:id="@+id/tv_phone_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:text="OTP sent to +91XXXXXXXXXX"
+        android:textSize="@dimen/text_size_normal"
+        android:textColor="@color/dark_text_secondary" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_otp_1"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/otp_box_background"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_otp_2"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/otp_box_background"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_otp_3"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/otp_box_background"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_otp_4"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/otp_box_background"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_otp_5"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/otp_box_background"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_otp_6"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/otp_box_background"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_verify"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginTop="24dp"
+        android:text="Verify"
+        android:textAllCaps="false"
+        app:backgroundTint="@color/dark_accent"
+        app:cornerRadius="@dimen/corner_radius_medium" />
+
+</LinearLayout>

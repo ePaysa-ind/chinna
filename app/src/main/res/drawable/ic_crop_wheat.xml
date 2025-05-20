@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Wheat stalk -->
+    <path
+        android:fillColor="#795548"
+        android:pathData="M12,22 L12,10" />
+    
+    <!-- Wheat grains - left side -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M10,10 Q8,9 10,8 M10,8 Q8,7 10,6 M10,6 Q8,5 10,4 M10,4 Q8,3 10,2" />
+    
+    <!-- Wheat grains - right side -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M14,10 Q16,9 14,8 M14,8 Q16,7 14,6 M14,6 Q16,5 14,4 M14,4 Q16,3 14,2" />
+    
+    <!-- Center grains -->
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M12,10 C12,10 11,9 12,8 C13,7 11,7 12,6 C13,5 11,5 12,4 C13,3 11,3 12,2" />
+    
+</vector>

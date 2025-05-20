@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Okra pod shape -->
+    <path
+        android:fillColor="#388E3C"
+        android:pathData="M12,2 C10.5,2 9,3.5 9,5 L9,16 C9,18.5 10.5,20 12,20 C13.5,20 15,18.5 15,16 L15,5 C15,3.5 13.5,2 12,2 Z" />
+    
+    <!-- Ridges on okra -->
+    <path
+        android:fillColor="#2E7D32"
+        android:pathData="M11,4 L11,18 M13,4 L13,18" />
+    
+    <!-- Okra cap/stem -->
+    <path
+        android:fillColor="#1B5E20"
+        android:pathData="M10,3 L12,1 L14,3 Z" />
+    
+</vector>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/table_border">
+
+        <!-- Week Period with color coding -->
+        <LinearLayout
+            android:id="@+id/week_container"
+            android:layout_width="150dp"
+            android:layout_height="80dp"
+            android:background="@color/dark_surface"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="8dp"
+            android:layout_marginEnd="1dp">
+
+            <TextView
+                android:id="@+id/tv_week_period"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Week 0-2"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/dark_text_primary"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Activity Type with icon -->
+        <LinearLayout
+            android:layout_width="100dp"
+            android:layout_height="80dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="@color/dark_background"
+            android:layout_marginEnd="1dp">
+
+            <TextView
+                android:id="@+id/tv_activity_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌱"
+                android:textSize="24sp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/tv_description"
+            android:layout_width="250dp"
+            android:layout_height="80dp"
+            android:text="Apply basal fertilizer and prepare seedbed"
+            android:textSize="14sp"
+            android:textColor="@color/dark_text_primary"
+            android:padding="8dp"
+            android:gravity="center_vertical"
+            android:background="@color/dark_background"
+            android:layout_marginEnd="1dp" />
+
+        <!-- Inputs/Dosage -->
+        <TextView
+            android:id="@+id/tv_inputs"
+            android:layout_width="120dp"
+            android:layout_height="80dp"
+            android:text="20kg DAP/acre"
+            android:textSize="14sp"
+            android:textColor="@color/dark_text_primary"
+            android:padding="8dp"
+            android:gravity="center"
+            android:background="@color/dark_background"
+            android:layout_marginEnd="1dp" />
+
+        <!-- Timing/Method -->
+        <TextView
+            android:id="@+id/tv_timing"
+            android:layout_width="120dp"
+            android:layout_height="80dp"
+            android:text="Early morning"
+            android:textSize="14sp"
+            android:textColor="@color/dark_text_primary"
+            android:padding="8dp"
+            android:gravity="center"
+            android:background="@color/dark_background"
+            android:layout_marginEnd="1dp" />
+
+        <!-- Critical Notes with warning icon -->
+        <LinearLayout
+            android:layout_width="150dp"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="@color/dark_background">
+
+            <ImageView
+                android:id="@+id/iv_critical_icon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_warning"
+                app:tint="@color/warning"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_critical_notes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Monitor daily"
+                android:textSize="12sp"
+                android:textColor="@color/dark_text_secondary"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</HorizontalScrollView>

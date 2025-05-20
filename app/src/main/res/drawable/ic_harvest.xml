@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Sickle blade -->
+    <path
+        android:fillColor="@color/dark_primary"
+        android:pathData="M4,4 Q12,4 16,8 Q16,12 12,16 Q8,16 4,12 Q4,8 4,4 Z" />
+    
+    <!-- Handle -->
+    <path
+        android:fillColor="@color/dark_primary_variant"
+        android:pathData="M15,15 L20,20" />
+    
+    <!-- Harvested grain -->
+    <path
+        android:fillColor="@color/warning"
+        android:pathData="M6,8 Q8,6 10,8 M8,10 Q10,8 12,10" />
+    
+</vector>

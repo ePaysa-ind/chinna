@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Admin access - replace with your actual admin UID
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'YOUR_ADMIN_UID_HERE';
+    }
+    
+    // Users can only access their own uploaded images
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == userId || isAdmin());
+    }
+    
+    // Shared resources (like crop images) - read only for authenticated users
+    match /shared/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    
+    // Admin full access to everything
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

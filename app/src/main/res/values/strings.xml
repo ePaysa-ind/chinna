@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Chinna</string>
+    
+    <!-- Home -->
+    <string name="welcome_user">Welcome, %s!</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_identify">Identify</string>
+    <string name="nav_practices">Practices</string>
+    <string name="nav_profile">Profile</string>
+    
+    <!-- Login -->
+    <string name="login_title">Welcome to Chinna</string>
+    <string name="login_subtitle">AI assistant for crop care</string>
+    <string name="enter_phone">Enter your phone number</string>
+    <string name="send_otp">Send OTP</string>
+    
+    <!-- OTP -->
+    <string name="verify_otp">Verify OTP</string>
+    <string name="otp_sent_to">OTP sent to %s</string>
+    <string name="enter_6_digit_otp">Enter 6 digit OTP</string>
+    <string name="verify">Verify</string>
+    <string name="resend_otp">Resend OTP</string>
+    
+    <!-- Cards -->
+    <string name="identify_pest">Identify Pest/Disease</string>
+    <string name="take_photo_identify">Take photo to identify</string>
+    <string name="crop_practices">Crop Practices</string>
+    <string name="weekly_guidance">Weekly crop guidance</string>
+    <string name="my_history">My History</string>
+    <string name="past_identifications">Past identifications</string>
+    <string name="help_support">Help &amp; Support</string>
+    <string name="get_assistance">Get assistance</string>
+    
+    <!-- Errors -->
+    <string name="error_invalid_phone">Enter 10 digit number</string>
+    <string name="error_invalid_otp">Enter 6 digit OTP</string>
+    <string name="error_network">No internet connection</string>
+    <string name="error_generic">Something went wrong</string>
+</resources>

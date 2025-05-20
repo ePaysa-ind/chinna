@@ -1,0 +1,228 @@
+{
+  "crops": [
+    {
+      "id": "okra",
+      "name": "Okra",
+      "localName": "Bhindi",
+      "description": "Summer vegetable crop",
+      "harvestDays": 50,
+      "optimalTemp": {
+        "min": 25,
+        "max": 35
+      },
+      "practices": [
+        {
+          "weekNumber": 1,
+          "title": "Land Preparation",
+          "activities": [
+            "Plough field 2-3 times",
+            "Add FYM 25 tons/hectare",
+            "Make raised beds 1.2m wide"
+          ],
+          "criticalReminder": "Ensure proper drainage"
+        },
+        {
+          "weekNumber": 2,
+          "title": "Sowing",
+          "activities": [
+            "Soak seeds 24 hours",
+            "Sow 2-3 seeds per hole",
+            "Spacing: 45cm x 30cm"
+          ],
+          "criticalReminder": "Water immediately after sowing"
+        },
+        {
+          "weekNumber": 4,
+          "title": "First Weeding",
+          "activities": [
+            "Hand weeding around plants",
+            "Apply urea 50kg/hectare",
+            "Earth up plants"
+          ],
+          "criticalReminder": "Don't damage roots"
+        },
+        {
+          "weekNumber": 6,
+          "title": "Pest Management",
+          "activities": [
+            "Check for aphids",
+            "Spray neem oil if needed",
+            "Install yellow sticky traps"
+          ],
+          "criticalReminder": "Early morning spray is best"
+        }
+      ]
+    },
+    {
+      "id": "chilli",
+      "name": "Chilli",
+      "localName": "Mirchi",
+      "description": "Spice crop",
+      "harvestDays": 120,
+      "optimalTemp": {
+        "min": 20,
+        "max": 30
+      },
+      "practices": [
+        {
+          "weekNumber": 1,
+          "title": "Nursery Preparation",
+          "activities": [
+            "Prepare raised nursery beds",
+            "Mix soil with compost",
+            "Sow seeds in lines"
+          ],
+          "criticalReminder": "Cover with mulch"
+        },
+        {
+          "weekNumber": 5,
+          "title": "Transplanting",
+          "activities": [
+            "Transplant 30-35 day seedlings",
+            "Spacing: 60cm x 45cm",
+            "Water immediately"
+          ],
+          "criticalReminder": "Evening transplanting is best"
+        }
+      ]
+    },
+    {
+      "id": "tomato",
+      "name": "Tomato",
+      "localName": "Tamatar",
+      "description": "Vegetable crop",
+      "harvestDays": 75,
+      "optimalTemp": {
+        "min": 18,
+        "max": 25
+      },
+      "practices": [
+        {
+          "weekNumber": 1,
+          "title": "Nursery",
+          "activities": [
+            "Prepare seedbed",
+            "Treat seeds with Trichoderma",
+            "Cover with polythene"
+          ],
+          "criticalReminder": "Maintain moisture"
+        }
+      ]
+    },
+    {
+      "id": "cotton",
+      "name": "Cotton",
+      "localName": "Kapas",
+      "description": "Cash crop",
+      "harvestDays": 160,
+      "optimalTemp": {
+        "min": 21,
+        "max": 27
+      },
+      "practices": [
+        {
+          "weekNumber": 1,
+          "title": "Field Preparation",
+          "activities": [
+            "Deep ploughing",
+            "Apply gypsum if needed",
+            "Level the field"
+          ],
+          "criticalReminder": "Check soil pH"
+        }
+      ]
+    },
+    {
+      "id": "maize",
+      "name": "Maize",
+      "localName": "Makka",
+      "description": "Cereal crop",
+      "harvestDays": 90,
+      "optimalTemp": {
+        "min": 20,
+        "max": 30
+      },
+      "practices": [
+        {
+          "weekNumber": 1,
+          "title": "Land Preparation",
+          "activities": [
+            "Plough and harrow",
+            "Apply FYM",
+            "Make furrows"
+          ],
+          "criticalReminder": "Ensure good drainage"
+        }
+      ]
+    },
+    {
+      "id": "soybean",
+      "name": "Soybean",
+      "localName": "Soya",
+      "description": "Pulse crop",
+      "harvestDays": 85,
+      "optimalTemp": {
+        "min": 20,
+        "max": 30
+      },
+      "practices": [
+        {
+          "weekNumber": 1,
+          "title": "Seed Treatment",
+          "activities": [
+            "Treat with Rhizobium",
+            "Use fungicide",
+            "Dry in shade"
+          ],
+          "criticalReminder": "Don't mix chemicals"
+        }
+      ]
+    },
+    {
+      "id": "rice",
+      "name": "Rice",
+      "localName": "Dhaan",
+      "description": "Cereal crop",
+      "harvestDays": 120,
+      "optimalTemp": {
+        "min": 20,
+        "max": 30
+      },
+      "practices": [
+        {
+          "weekNumber": 1,
+          "title": "Field Preparation",
+          "activities": [
+            "Puddling operation",
+            "Level the field",
+            "Apply basal fertilizer"
+          ],
+          "criticalReminder": "Maintain water level"
+        }
+      ]
+    },
+    {
+      "id": "wheat",
+      "name": "Wheat",
+      "localName": "Gehun",
+      "description": "Cereal crop",
+      "harvestDays": 110,
+      "optimalTemp": {
+        "min": 10,
+        "max": 25
+      },
+      "practices": [
+        {
+          "weekNumber": 1,
+          "title": "Field Preparation",
+          "activities": [
+            "Prepare fine tilth",
+            "Apply DAP fertilizer",
+            "Make seed beds"
+          ],
+          "criticalReminder": "Check soil moisture"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.chinna.ui.home.HomeFragment"
+        android:label="Home">
+        <action
+            android:id="@+id/action_home_to_camera"
+            app:destination="@id/cameraFragment" />
+        <action
+            android:id="@+id/action_home_to_practices"
+            app:destination="@id/practicesFragment" />
+        <action
+            android:id="@+id/action_home_to_smart_advisory"
+            app:destination="@id/smartAdvisoryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.chinna.ui.auth.LoginFragment"
+        android:label="Login">
+        <action
+            android:id="@+id/action_login_to_otp"
+            app:destination="@id/otpFragment" />
+        <action
+            android:id="@+id/action_login_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/otpFragment"
+        android:name="com.example.chinna.ui.auth.OtpFragment"
+        android:label="Verify OTP">
+        <argument
+            android:name="phoneNumber"
+            app:argType="string" />
+        <argument
+            android:name="verificationId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_otp_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.chinna.ui.identify.CameraFragment"
+        android:label="Camera">
+        <action
+            android:id="@+id/action_camera_to_result"
+            app:destination="@id/resultFragment" />
+        <action
+            android:id="@+id/action_camera_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    
+    <fragment
+        android:id="@+id/resultFragment"
+        android:name="com.example.chinna.ui.identify.ResultFragment"
+        android:label="Results">
+        <argument
+            android:name="imagePath"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_result_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/practicesFragment"
+        android:name="com.example.chinna.ui.practices.PracticesFragment"
+        android:label="Crop Practices">
+        <action
+            android:id="@+id/action_practices_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_practices_to_summary"
+            app:destination="@id/practicesSummaryFragment" />
+    </fragment>
+    
+    <fragment
+        android:id="@+id/practicesSummaryFragment"
+        android:name="com.example.chinna.ui.practices.PracticesSummaryFragment"
+        android:label="Crop Dashboard">
+        <argument
+            android:name="crop"
+            app:argType="com.example.chinna.model.Crop" />
+        <argument
+            android:name="practices"
+            app:argType="string" />
+        <argument
+            android:name="sowing_date"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_summary_to_practices"
+            app:destination="@id/practicesFragment"
+            app:popUpTo="@id/practicesFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/smartAdvisoryFragment"
+        android:name="com.example.chinna.ui.smart_advisory.SmartAdvisoryFragment"
+        android:label="Smart Advisory"
+        tools:layout="@layout/fragment_smart_advisory">
+        <action
+            android:id="@+id/action_advisory_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+</navigation>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Theme Colors for reduced eye strain -->
+    
+    <!-- Primary Colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="primary">#FF1B5E20</color>               <!-- Green -->
+    <color name="dark_primary">#FF1B5E20</color>          <!-- Dark Green -->
+    <color name="dark_primary_variant">#FF2E7D32</color>  <!-- Green 800 -->
+    <color name="dark_accent">#FFD700</color>             <!-- Gold -->
+    
+    <!-- Background Colors -->
+    <color name="dark_background">#FF121212</color>       <!-- Dark Gray -->
+    <color name="dark_surface">#FF1E1E1E</color>          <!-- Slightly lighter -->
+    <color name="dark_card">#FF2C2C2C</color>             <!-- Card background -->
+    
+    <!-- Text Colors -->
+    <color name="dark_text_primary">#FFEFEFEF</color>     <!-- Almost white -->
+    <color name="dark_text_secondary">#FFB3B3B3</color>   <!-- Light gray -->
+    <color name="text_on_primary">#FFFFFFFF</color>
+    
+    <!-- Light Theme Colors (for fallback) -->
+    <color name="sunlight_primary">#FF000000</color>
+    <color name="sunlight_primary_dark">#FF000000</color>
+    <color name="sunlight_accent">#FFD700</color>
+    <color name="sunlight_background">#FFFFF0</color>
+    <color name="sunlight_surface">#FFFACD</color>
+    <color name="sunlight_card">#FFFAF0</color>
+    <color name="sunlight_text_primary">#FF000000</color>
+    <color name="sunlight_text_secondary">#FF333333</color>
+    <color name="sunlight_text_on_primary">#FFFFFFFF</color>
+    
+    <!-- Status Colors -->
+    <color name="danger">#DC143C</color>
+    <color name="warning">#FF8C00</color>
+    <color name="success">#228B22</color>
+    <color name="info">#2196F3</color>
+    <color name="error">#F44336</color>
+    
+    <!-- Light variants for backgrounds -->
+    <color name="success_light">#E8F5E9</color>
+    <color name="error_light">#FFEBEE</color>
+    <color name="warning_light">#FFF8E1</color>
+    
+    <!-- Bottom Nav Colors -->
+    <color name="bottom_nav_selected">#FF000000</color>
+    <color name="bottom_nav_unselected">#FF666666</color>
+    
+    <!-- Launcher icon background -->
+    <color name="ic_launcher_background">#FF121212</color>
+    
+    <!-- Practice view colors -->
+    <color name="amber">#FFC107</color>
+    <color name="green_light">#81C784</color>
+    <color name="green_medium">#4CAF50</color>
+    <color name="orange">#FF6E40</color>
+    <color name="dark_text_tertiary">#3D3D3D</color>
+    <color name="dark_secondary">#FF1E1E1E</color>
+    
+    <!-- Add any missing colors for compatibility -->
+    <color name="teal_200">#FFD700</color> <!-- Use dark_accent value -->
+    <color name="background">@color/dark_background</color>
+    <color name="surface">@color/dark_surface</color>
+    <color name="text_primary">@color/dark_text_primary</color>
+    <color name="text_secondary">@color/dark_text_secondary</color>
+</resources>

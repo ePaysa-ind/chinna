@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Rice plant base -->
+    <path
+        android:fillColor="#795548"
+        android:pathData="M11,20 L11,12 M12,20 L12,12 M13,20 L13,12" />
+    
+    <!-- Rice grains -->
+    <path
+        android:fillColor="#FFE082"
+        android:pathData="M9,11 C9,10 10,8 12,8 C14,8 15,10 15,11 C15,12 14,13 12,13 C10,13 9,12 9,11 Z" />
+    
+    <!-- More grains -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M8,9 Q9,7 10,9 M14,9 Q15,7 16,9 M10,6 Q11,4 12,6 M12,6 Q13,4 14,6" />
+    
+    <!-- Leaves -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M7,12 Q5,10 7,8 M17,12 Q19,10 17,8" />
+    
+</vector>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome to Chinna"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_text_primary"
+            android:gravity="center"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AI assistant for crop care"
+            android:textSize="18sp"
+            android:textColor="@color/dark_text_secondary"
+            android:gravity="center"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Name Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundColor="@color/dark_surface">
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Name"
+                android:inputType="textPersonName"
+                android:textColor="@color/dark_text_primary" />
+                
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Village Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundColor="@color/dark_surface">
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_village"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Village"
+                android:inputType="text"
+                android:textColor="@color/dark_text_primary" />
+                
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Acreage Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundColor="@color/dark_surface">
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_acreage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Acreage"
+                android:inputType="numberDecimal"
+                android:textColor="@color/dark_text_primary" />
+                
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Crop Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:boxBackgroundColor="@color/dark_surface">
+            
+            <AutoCompleteTextView
+                android:id="@+id/et_crop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Crop (if sown)"
+                android:inputType="none"
+                android:textColor="@color/dark_text_primary" />
+                
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Soil Type Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:boxBackgroundColor="@color/dark_surface">
+            
+            <AutoCompleteTextView
+                android:id="@+id/et_soil_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Soil Type"
+                android:inputType="none"
+                android:textColor="@color/dark_text_primary" />
+                
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Date of Sowing Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundColor="@color/dark_surface">
+            
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_sowing_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Date of Sowing"
+                android:inputType="date"
+                android:clickable="true"
+                android:focusable="false"
+                android:textColor="@color/dark_text_primary" />
+                
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Phone Number Field -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mobile Number"
+            android:textSize="16sp"
+            android:textColor="@color/dark_text_primary"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="+91"
+                android:textSize="18sp"
+                android:textColor="@color/dark_text_primary"
+                android:gravity="center"
+                android:paddingHorizontal="16dp"
+                android:background="@drawable/border_background"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/et_phone_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="phone"
+                android:maxLength="10"
+                android:textSize="18sp"
+                android:textColor="@color/dark_text_primary"
+                android:padding="16dp"
+                android:background="@drawable/border_background"
+                android:hint="10 digit number"
+                android:textColorHint="@color/dark_text_secondary" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_send_otp"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Send OTP"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/dark_accent" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:indeterminateTint="@color/dark_accent" />
+
+    </LinearLayout>
+
+</ScrollView>

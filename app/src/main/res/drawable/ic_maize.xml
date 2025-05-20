@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Corn cob -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M9,4 C9,3 10,2 12,2 C14,2 15,3 15,4 L15,16 C15,17 14,18 12,18 C10,18 9,17 9,16 Z" />
+    
+    <!-- Corn kernels pattern -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M10,5 L10,15 M12,4 L12,16 M14,5 L14,15" />
+    <path
+        android:fillColor="#FFB300"
+        android:pathData="M11,6 Q11,6 11,7 M13,6 Q13,6 13,7 M11,9 Q11,9 11,10 M13,9 Q13,9 13,10 M11,12 Q11,12 11,13 M13,12 Q13,12 13,13" />
+    
+    <!-- Corn husks -->
+    <path
+        android:fillColor="#8BC34A"
+        android:pathData="M8,8 Q6,6 8,4 M16,8 Q18,6 16,4" />
+    <path
+        android:fillColor="#689F38"
+        android:pathData="M7,16 Q5,14 7,12 M17,16 Q19,14 17,12" />
+    
+    <!-- Stem -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M12,18 L12,22" />
+    
+</vector>

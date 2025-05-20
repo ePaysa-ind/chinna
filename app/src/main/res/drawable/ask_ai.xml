@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Left speech bubble with "AI" -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M8,2C5.79,2 4,3.79 4,6C4,7.62 5.09,8.98 6.56,9.66C6.21,10.19 5.55,10.62 4.75,10.97C5.72,11.14 6.59,10.97 7.34,10.5C7.56,10.53 7.78,10.56 8,10.56C10.21,10.56 12,8.77 12,6.56C12,4.35 10.21,2.56 8,2.56C8,2.38 8,2.19 8,2Z" />
+
+    <!-- Right speech bubble with lines -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M15.5,8C17.71,8 19.5,9.79 19.5,12C19.5,13.62 18.41,14.98 16.94,15.66C17.29,16.19 17.95,16.62 18.75,16.97C17.78,17.14 16.91,16.97 16.16,16.5C15.94,16.53 15.72,16.56 15.5,16.56C13.29,16.56 11.5,14.77 11.5,12.56C11.5,10.35 13.29,8.56 15.5,8.56C15.5,8.38 15.5,8.19 15.5,8Z" />
+
+    <!-- AI text -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6.5,5.5L6.5,9L7.5,9L7.5,5.5L6.5,5.5ZM8.5,5.5L8.5,9L9.5,9L9.5,5.5L8.5,5.5Z" />
+
+    <!-- Three horizontal lines in the right bubble -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M14,11.5L17,11.5L17,10.5L14,10.5L14,11.5ZM14,13L17,13L17,12L14,12L14,13ZM14,14.5L17,14.5L17,13.5L14,13.5L14,14.5Z" />
+</vector>

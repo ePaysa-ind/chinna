@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/dark_surface">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Five Recent Scans"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/dark_text_primary"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Table Headers -->
+    <LinearLayout
+        android:id="@+id/table_headers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/table_header_background"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="#"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_text_primary"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.2"
+            android:text="Date/Time"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_text_primary"
+            android:paddingStart="8dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Crop"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_text_primary"
+            android:paddingStart="8dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.5"
+            android:text="Issue"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_text_primary"
+            android:paddingStart="8dp" />
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_confidence"
+            app:tint="@color/success"
+            android:layout_gravity="center"
+            android:contentDescription="Confidence %"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- Results Container -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_history"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxHeight="300dp" />
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_history_png"
+            app:tint="@color/dark_text_secondary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No scans yet"
+            android:textSize="18sp"
+            android:textColor="@color/dark_text_primary"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Take photos to identify pests and diseases"
+            android:textSize="16sp"
+            android:textColor="@color/dark_text_secondary"
+            android:layout_marginTop="8dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+</LinearLayout>

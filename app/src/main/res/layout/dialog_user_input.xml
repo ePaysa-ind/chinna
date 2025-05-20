@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/dark_surface">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Your Name"
+        android:textColorHint="@color/dark_text_secondary"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/dark_accent"
+        app:hintTextColor="@color/dark_accent"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+        <AutoCompleteTextView
+            android:id="@+id/edit_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/dark_text_primary"
+            android:textColorHint="@color/dark_text_secondary" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Village Name (min 3 characters)"
+        android:textColorHint="@color/dark_text_secondary"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/dark_accent"
+        app:hintTextColor="@color/dark_accent"
+        app:helperText="Enter at least 3 letters, no numbers"
+        app:helperTextEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_village"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/dark_text_primary"
+            android:imeOptions="actionNext"
+            android:inputType="textPersonName" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Acreage (1-9 acres)"
+        android:textColorHint="@color/dark_text_secondary"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/dark_accent"
+        app:hintTextColor="@color/dark_accent"
+        app:counterEnabled="true"
+        app:counterMaxLength="1"
+        app:helperText="Enter a value between 1-9"
+        app:helperTextEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_acreage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:maxLength="1"
+            android:textSize="20sp"
+            android:textColor="@color/dark_text_primary" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Sowing Date (DD/MM/YYYY)"
+        android:textColorHint="@color/dark_text_secondary"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="@color/dark_accent"
+        app:hintTextColor="@color/dark_accent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_sowing_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="date"
+            android:textSize="20sp"
+            android:textColor="@color/dark_text_primary" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>
