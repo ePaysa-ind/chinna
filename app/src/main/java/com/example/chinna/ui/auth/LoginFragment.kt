@@ -89,7 +89,7 @@ class LoginFragment : Fragment() {
             if (validateInputs()) {
                 val phoneNumber = binding.etPhoneNumber.text.toString().trim()
                 val name = binding.etName.text.toString().trim()
-                val village = binding.etVillage.text.toString().trim()
+                val pinCode = binding.etPincode.text.toString().trim()
                 val acreage = binding.etAcreage.text.toString().toDoubleOrNull() ?: 0.0
                 val crop = binding.etCrop.text.toString().trim()
                 val soilType = binding.etSoilType.text.toString().trim()
@@ -98,7 +98,7 @@ class LoginFragment : Fragment() {
                 val sharedPref = requireActivity().getSharedPreferences("login_data", android.content.Context.MODE_PRIVATE)
                 with(sharedPref.edit()) {
                     putString("name", name)
-                    putString("village", village)
+                    putString("pinCode", pinCode)
                     putFloat("acreage", acreage.toFloat())
                     putString("crop", crop)
                     putString("soilType", soilType)
@@ -113,7 +113,7 @@ class LoginFragment : Fragment() {
     
     private fun validateInputs(): Boolean {
         val name = binding.etName.text.toString().trim()
-        val village = binding.etVillage.text.toString().trim()
+        val pinCode = binding.etPincode.text.toString().trim()
         val acreage = binding.etAcreage.text.toString().trim()
         val soilType = binding.etSoilType.text.toString().trim()
         val phoneNumber = binding.etPhoneNumber.text.toString().trim()
@@ -123,8 +123,16 @@ class LoginFragment : Fragment() {
                 binding.etName.error = "Please enter your name"
                 return false
             }
-            village.isEmpty() -> {
-                binding.etVillage.error = "Please enter your village"
+            pinCode.isEmpty() -> {
+                binding.etPincode.error = "Please enter your PIN code"
+                return false
+            }
+            pinCode.length != 6 -> {
+                binding.etPincode.error = "PIN code must be 6 digits"
+                return false
+            }
+            !isValidIndianPinCode(pinCode) -> {
+                binding.etPincode.error = "Invalid PIN code format"
                 return false
             }
             acreage.isEmpty() -> {
@@ -153,6 +161,12 @@ class LoginFragment : Fragment() {
         }
         
         return true
+    }
+    
+    private fun isValidIndianPinCode(pinCode: String): Boolean {
+        // Pattern: First digit must be 1-9, followed by 5 digits
+        val pattern = "^[1-9][0-9]{5}$".toRegex()
+        return pattern.matches(pinCode)
     }
     
     private fun sendOtp(phoneNumber: String) {

@@ -33,11 +33,11 @@ class FirebaseOptionsProvider @Inject constructor() {
                     return false
                 }
                 
-                // Create options manually instead of using google-services.json
+                // Get Firebase configuration from BuildConfig
                 val options = FirebaseOptions.Builder()
                     .setApiKey(apiKey)
-                    .setApplicationId("1:1034936774185:android:d259952bdc300e8fc83638")
-                    .setProjectId("chinna-48b9f")
+                    .setApplicationId(BuildConfig.FIREBASE_APP_ID)
+                    .setProjectId(BuildConfig.FIREBASE_PROJECT_ID)
                     .build()
                 
                 // Initialize with custom options

@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(ls:*)",
+      "Bash(export:*)",
+      "Bash(cmd.exe /c gradlew.bat clean)",
+      "Bash(cmd.exe /c \"gradlew.bat clean\")",
+      "Bash(cmd.exe:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(grep:*)",
+      "Bash(sudo apt:*)",
+      "Bash(java:*)",
+      "Bash(readlink:*)",
+      "Bash(find:*)",
+      "Bash(cp:*)",
+      "Bash(echo:*)",
+      "WebFetch(domain:developer.android.com)",
+      "Bash(rg:*)",
+      "Bash(mv:*)",
+      "WebFetch(domain:drive.google.com)",
+      "Bash(git checkout:*)",
+      "Bash(cat:*)",
+      "Bash($JAVA_HOME/bin/keytool:*)",
+      "Bash(chmod:*)",
+      "Bash(git branch:*)"
+    ],
+    "deny": []
+  }
+}

@@ -3,13 +3,17 @@ package com.example.chinna.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.chinna.R
-import com.example.chinna.databinding.ActivityAuthBinding
+import com.example.chinna.data.local.database.UserEntity
+import com.example.chinna.data.repository.UserRepository
+import com.example.chinna.databinding.ActivityAuthUpdatedBinding
 import com.example.chinna.ui.MainActivity
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
@@ -19,8 +23,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -28,16 +32,21 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AuthActivity : AppCompatActivity() {
+class AuthActivityUpdated : AppCompatActivity() {
     
-    private lateinit var binding: ActivityAuthBinding
+    private lateinit var binding: ActivityAuthUpdatedBinding
     private val viewModel: AuthViewModel by viewModels()
     
     @Inject
     lateinit var auth: FirebaseAuth
     
+    @Inject
+    lateinit var userRepository: UserRepository
+    
     private var verificationId: String? = null
     private var selectedDate: Long? = null
+    private var isExistingUser = false
+    private var existingUserData: UserEntity? = null
     
     // Flag to prevent recreation loops
     companion object {
@@ -50,7 +59,7 @@ class AuthActivity : AppCompatActivity() {
         // Prevent recreation loops
         if (IS_INITIALIZING) {
             Log.w("AuthActivity", "Already initializing, preventing recreation loop")
-            setContentView(R.layout.activity_auth) // Set simple content view
+            setContentView(R.layout.activity_auth_updated) // Set simple content view
             Toast.makeText(this, "Loading authentication...", Toast.LENGTH_SHORT).show()
             return
         }
@@ -59,44 +68,13 @@ class AuthActivity : AppCompatActivity() {
         
         try {
             // First inflate layout to avoid black screen on failure
-            binding = ActivityAuthBinding.inflate(layoutInflater)
+            binding = ActivityAuthUpdatedBinding.inflate(layoutInflater)
             setContentView(binding.root)
             
-            // First clear any existing Firestore listeners to prevent security rule violations
-            try {
-                val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-                // Force close any ongoing connections
-                firestore.terminate()
-            } catch (e: Exception) {
-                Log.e("AuthActivity", "Error closing Firestore: ${e.message}")
-            }
+            // Clear any existing Firebase connections
+            clearFirebaseConnections()
             
-            // Clear Firebase Auth instances to ensure fresh state
-            try {
-                val currentAuth = FirebaseAuth.getInstance()
-                
-                // Check if we're transitioning from a recent logout
-                val isAfterLogout = intent.getBooleanExtra("CLEAN_LOGIN", false)
-                
-                if (isAfterLogout) {
-                    Log.d("AuthActivity", "Clean login after logout detected")
-                    
-                    // Ensure all Firebase connections are closed and cleared
-                    currentAuth.signOut()
-                    
-                    // Clear any Firebase cache
-                    try {
-                        val cacheDir = File(applicationContext.cacheDir, "firebase")
-                        clearCache(cacheDir)
-                    } catch (e: Exception) {
-                        Log.e("AuthActivity", "Cache clearing error: ${e.message}")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("AuthActivity", "Error clearing Firebase Auth: ${e.message}")
-            }
-            
-            // Add a longer delay to ensure Firebase is ready and all security rule operations have settled
+            // Add a longer delay to ensure Firebase is ready
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                 try {
                     initializeAuthentication()
@@ -111,11 +89,37 @@ class AuthActivity : AppCompatActivity() {
             // Critical error handling - try to recover by showing a simple layout
             e.printStackTrace()
             IS_INITIALIZING = false // Reset flag on error
-            setContentView(R.layout.activity_auth) // Fallback to XML inflation
+            setContentView(R.layout.activity_auth_updated) // Fallback to XML inflation
             
             Toast.makeText(this, "Error initializing app: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    private fun clearFirebaseConnections() {
+        try {
+            // Force close any ongoing Firestore connections
+            val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            firestore.terminate()
             
-            // Don't recreate automatically to avoid loops
+            // Check if we're transitioning from a recent logout
+            val isAfterLogout = intent.getBooleanExtra("CLEAN_LOGIN", false)
+            
+            if (isAfterLogout) {
+                Log.d("AuthActivity", "Clean login after logout detected")
+                
+                // Ensure all Firebase connections are closed and cleared
+                FirebaseAuth.getInstance().signOut()
+                
+                // Clear any Firebase cache
+                try {
+                    val cacheDir = File(applicationContext.cacheDir, "firebase")
+                    clearCache(cacheDir)
+                } catch (e: Exception) {
+                    Log.e("AuthActivity", "Cache clearing error: ${e.message}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("AuthActivity", "Error clearing Firebase connections: ${e.message}")
         }
     }
     
@@ -160,7 +164,7 @@ class AuthActivity : AppCompatActivity() {
                 }
             }
             
-            setupViews()
+            setupInitialView()
             observeViewModel()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -168,59 +172,160 @@ class AuthActivity : AppCompatActivity() {
         }
     }
     
-    private fun setupViews() {
+    private fun setupInitialView() {
+        // First, only show the mobile entry layout
+        binding.mobileEntryLayout.root.visibility = View.VISIBLE
+        binding.userDetailsLayout.root.visibility = View.GONE
+        
+        // Set up the continue button click listener
+        binding.mobileEntryLayout.btnContinue.setOnClickListener {
+            val mobileNumber = binding.mobileEntryLayout.etMobile.text.toString().trim()
+            
+            if (validateMobileNumber(mobileNumber)) {
+                // Show loading indicator
+                binding.mobileEntryLayout.progressBar.visibility = View.VISIBLE
+                binding.mobileEntryLayout.btnContinue.isEnabled = false
+                
+                // Check if user exists
+                checkIfUserExists(mobileNumber)
+            }
+        }
+    }
+    
+    private fun validateMobileNumber(mobile: String): Boolean {
+        if (mobile.length != 10) {
+            showError("Please enter a valid 10-digit mobile number")
+            return false
+        }
+        return true
+    }
+    
+    private fun checkIfUserExists(mobile: String) {
+        lifecycleScope.launch {
+            try {
+                val user = userRepository.getUserByMobile(mobile)
+                
+                if (user != null) {
+                    // Existing user found
+                    isExistingUser = true
+                    existingUserData = user
+                    setupUserDetailsWithExistingData(user)
+                } else {
+                    // New user
+                    isExistingUser = false
+                    existingUserData = null
+                    setupUserDetailsForNewUser()
+                }
+                
+                // Switch to user details view
+                binding.mobileEntryLayout.root.visibility = View.GONE
+                binding.userDetailsLayout.root.visibility = View.VISIBLE
+                
+            } catch (e: Exception) {
+                Log.e("AuthActivity", "Error checking user: ${e.message}")
+                showError("Error checking user data: ${e.message}")
+                binding.mobileEntryLayout.progressBar.visibility = View.GONE
+                binding.mobileEntryLayout.btnContinue.isEnabled = true
+            }
+        }
+    }
+    
+    private fun setupUserDetailsWithExistingData(user: UserEntity) {
+        // Show message that user exists
+        binding.userDetailsLayout.tvUserStatus.visibility = View.VISIBLE
+        binding.userDetailsLayout.tvUserStatus.text = "Welcome back! Please verify your information."
+        
+        // Prefill the form with existing data
+        binding.userDetailsLayout.etName.setText(user.name)
+        binding.userDetailsLayout.etPincode.setText(user.pinCode)
+        binding.userDetailsLayout.etAcreage.setText(user.acreage.toString())
+        binding.userDetailsLayout.etCrop.setText(user.crop)
+        binding.userDetailsLayout.etSoilType.setText(user.soilType)
+        
+        // Set sowing date if available
+        if (user.sowingDate > 0) {
+            selectedDate = user.sowingDate
+            val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            binding.userDetailsLayout.etSowingDate.setText(formatter.format(Date(user.sowingDate)))
+        }
+        
+        setupDetailViewComponents()
+    }
+    
+    private fun setupUserDetailsForNewUser() {
+        // Show message for new user
+        binding.userDetailsLayout.tvUserStatus.visibility = View.VISIBLE
+        binding.userDetailsLayout.tvUserStatus.text = "Welcome! Please complete your profile."
+        
+        // Clear all fields
+        binding.userDetailsLayout.etName.setText("")
+        binding.userDetailsLayout.etPincode.setText("")
+        binding.userDetailsLayout.etAcreage.setText("")
+        binding.userDetailsLayout.etCrop.setText("")
+        binding.userDetailsLayout.etSoilType.setText("")
+        binding.userDetailsLayout.etSowingDate.setText("")
+        
+        setupDetailViewComponents()
+    }
+    
+    private fun setupDetailViewComponents() {
         // Setup crop autocomplete
         val crops = listOf("Okra", "Chillies", "Tomatoes", "Cotton", "Maize", "Soybean", "Rice", "Wheat", "Pulses")
         val cropAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, crops)
-        (binding.etCrop as? AutoCompleteTextView)?.setAdapter(cropAdapter)
+        (binding.userDetailsLayout.etCrop as? AutoCompleteTextView)?.setAdapter(cropAdapter)
         
         // Setup soil type autocomplete
         val soilTypes = listOf("Black", "Red", "Sandy loam")
         val soilAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, soilTypes)
-        (binding.etSoilType as? AutoCompleteTextView)?.setAdapter(soilAdapter)
+        (binding.userDetailsLayout.etSoilType as? AutoCompleteTextView)?.setAdapter(soilAdapter)
         
-        // Setup real-time validation for name and PIN code
+        // Setup validation for name and PIN code
+        setupInputValidation()
+        
+        // Setup date picker
+        binding.userDetailsLayout.etSowingDate.setOnClickListener {
+            showDatePicker()
+        }
+        
+        // Setup send OTP button
+        binding.userDetailsLayout.btnSendOtp.setOnClickListener {
+            if (validateUserDetails()) {
+                sendOtp()
+            }
+        }
+    }
+    
+    private fun setupInputValidation() {
+        // Name validation
         val namePattern = "^[a-zA-Z\\s]*$".toRegex()
-        val pinCodePattern = "^[1-9][0-9]{5}$".toRegex()
-        
-        binding.etName.addTextChangedListener(object : android.text.TextWatcher {
+        binding.userDetailsLayout.etName.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val input = s.toString()
                 if (!input.matches(namePattern) && input.isNotEmpty()) {
-                    binding.etName.setText(input.replace(Regex("[^a-zA-Z\\s]"), ""))
-                    binding.etName.setSelection(binding.etName.text?.length ?: 0)
+                    binding.userDetailsLayout.etName.setText(input.replace(Regex("[^a-zA-Z\\s]"), ""))
+                    binding.userDetailsLayout.etName.setSelection(binding.userDetailsLayout.etName.text?.length ?: 0)
                     showError("Name cannot contain numbers or special characters")
                 }
             }
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
         
-        binding.etPincode.addTextChangedListener(object : android.text.TextWatcher {
+        // PIN code validation
+        val pinCodePattern = "^[1-9][0-9]{5}$".toRegex()
+        binding.userDetailsLayout.etPincode.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val input = s.toString()
                 if (input.length == 6 && !input.matches(pinCodePattern)) {
-                    binding.etPincode.error = "Invalid PIN code format"
+                    binding.userDetailsLayout.etPincode.error = "Invalid PIN code format"
                     showError("PIN code must start with 1-9 followed by 5 digits")
                 } else {
-                    binding.etPincode.error = null
+                    binding.userDetailsLayout.etPincode.error = null
                 }
             }
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
-        
-        // Setup date picker
-        binding.etSowingDate.setOnClickListener {
-            showDatePicker()
-        }
-        
-        // Setup verify button
-        binding.btnVerifyOtp.setOnClickListener {
-            if (validateInputs()) {
-                sendOtp()
-            }
-        }
     }
     
     private fun showDatePicker() {
@@ -238,31 +343,24 @@ class AuthActivity : AppCompatActivity() {
         datePicker.addOnPositiveButtonClickListener { selection ->
             selectedDate = selection
             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            binding.etSowingDate.setText(formatter.format(Date(selection)))
+            binding.userDetailsLayout.etSowingDate.setText(formatter.format(Date(selection)))
         }
         
         datePicker.show(supportFragmentManager, "date_picker")
     }
     
-    // This function was duplicated - removed to fix conflict
-    
-    private fun validateInputs(): Boolean {
-        val mobile = binding.etMobile.text.toString() 
-        val name = binding.etName.text.toString()
-        val pinCode = binding.etPincode.text.toString()
-        val acreage = binding.etAcreage.text.toString()
-        val crop = binding.etCrop.text.toString()
-        val soilType = binding.etSoilType.text.toString()
+    private fun validateUserDetails(): Boolean {
+        val name = binding.userDetailsLayout.etName.text.toString().trim()
+        val pinCode = binding.userDetailsLayout.etPincode.text.toString().trim()
+        val acreage = binding.userDetailsLayout.etAcreage.text.toString().trim()
+        val crop = binding.userDetailsLayout.etCrop.text.toString().trim()
+        val soilType = binding.userDetailsLayout.etSoilType.text.toString().trim()
         
         // Validation patterns
         val namePattern = "^[a-zA-Z\\s]+$".toRegex()
         val pinCodePattern = "^[1-9][0-9]{5}$".toRegex()
         
         return when {
-            mobile.length != 10 -> {
-                showError("Enter valid 10-digit mobile number")
-                false
-            }
             name.isBlank() -> {
                 showError("Name is required")
                 false
@@ -311,7 +409,7 @@ class AuthActivity : AppCompatActivity() {
                 showError("Select a valid soil type")
                 false
             }
-            // Sowing date is now optional, but if provided, it cannot be in the future
+            // Sowing date is optional, but if provided, it cannot be in the future
             selectedDate != null && selectedDate!! > System.currentTimeMillis() -> {
                 showError("Sowing date cannot be in the future")
                 false
@@ -321,7 +419,7 @@ class AuthActivity : AppCompatActivity() {
     }
     
     private fun sendOtp() {
-        val phoneNumber = "+91${binding.etMobile.text}"
+        val phoneNumber = "+91${binding.mobileEntryLayout.etMobile.text}"
         
         // Configure phone auth with in-app reCAPTCHA
         auth.setLanguageCode("en")
@@ -344,7 +442,7 @@ class AuthActivity : AppCompatActivity() {
                     verificationId: String,
                     token: PhoneAuthProvider.ForceResendingToken
                 ) {
-                    this@AuthActivity.verificationId = verificationId
+                    this@AuthActivityUpdated.verificationId = verificationId
                     showOtpDialog()
                 }
             })
@@ -355,7 +453,7 @@ class AuthActivity : AppCompatActivity() {
     
     private fun showOtpDialog() {
         val otpDialog = OtpDialogFragment.newInstance(
-            phoneNumber = binding.etMobile.text.toString(),
+            phoneNumber = binding.mobileEntryLayout.etMobile.text.toString(),
             onOtpEntered = { otp ->
                 verifyOtp(otp)
             }
@@ -383,13 +481,13 @@ class AuthActivity : AppCompatActivity() {
     
     private fun saveUserData() {
         val userData = UserData(
-            mobile = binding.etMobile.text.toString(),
-            name = binding.etName.text.toString(),
-            pinCode = binding.etPincode.text.toString(),
-            acreage = binding.etAcreage.text.toString().toDouble(),
-            crop = binding.etCrop.text.toString(),
+            mobile = binding.mobileEntryLayout.etMobile.text.toString(),
+            name = binding.userDetailsLayout.etName.text.toString(),
+            pinCode = binding.userDetailsLayout.etPincode.text.toString(),
+            acreage = binding.userDetailsLayout.etAcreage.text.toString().toDouble(),
+            crop = binding.userDetailsLayout.etCrop.text.toString(),
             sowingDate = selectedDate ?: 0L,
-            soilType = binding.etSoilType.text.toString()
+            soilType = binding.userDetailsLayout.etSoilType.text.toString()
         )
         
         viewModel.saveUser(userData)
@@ -400,14 +498,14 @@ class AuthActivity : AppCompatActivity() {
             when (state) {
                 is AuthViewModel.AuthState.Loading -> {
                     // Show loading
-                    binding.btnVerifyOtp.isEnabled = false
+                    binding.userDetailsLayout.btnSendOtp.isEnabled = false
                 }
                 is AuthViewModel.AuthState.Success -> {
                     navigateToMain()
                 }
                 is AuthViewModel.AuthState.Error -> {
                     showError(state.message)
-                    binding.btnVerifyOtp.isEnabled = true
+                    binding.userDetailsLayout.btnSendOtp.isEnabled = true
                 }
             }
         }

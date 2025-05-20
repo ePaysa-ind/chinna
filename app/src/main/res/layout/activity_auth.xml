@@ -111,16 +111,18 @@
                 android:layout_marginTop="16dp"
                 app:boxStrokeColor="@color/dark_accent"
                 app:hintTextColor="@color/dark_accent"
-                app:boxBackgroundColor="@color/dark_background">
+                app:boxBackgroundColor="@color/dark_background"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_village"
+                    android:id="@+id/et_pincode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Village"
+                    android:hint="PIN Code (6 digits)"
                     android:textColor="@color/dark_text_primary"
                     android:textColorHint="@color/dark_text_secondary"
-                    android:inputType="text" />
+                    android:inputType="number"
+                    android:maxLength="6" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout

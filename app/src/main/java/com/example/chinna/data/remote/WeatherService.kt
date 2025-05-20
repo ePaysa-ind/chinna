@@ -49,19 +49,37 @@ class WeatherService @Inject constructor(
     // Cache weather data for 30 minutes
     private var cachedWeatherData: WeatherData? = null
     private var lastFetchTime: Long = 0
+    private var lastPinCode: String = "" // Track the PIN code used for caching
     
-    suspend fun getCurrentWeather(): WeatherData? = withContext(Dispatchers.IO) {
+    suspend fun getCurrentWeather(pinCode: String? = null): WeatherData? = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "getCurrentWeather: Starting weather request")
+            Log.d(TAG, "getCurrentWeather: Starting weather request" + if (pinCode != null) " for PIN code $pinCode" else "")
             
-            // Check cache first
+            // Check cache first - only use cache if PIN code matches or both are null
             if (cachedWeatherData != null && 
-                System.currentTimeMillis() - lastFetchTime < CACHE_DURATION) {
+                System.currentTimeMillis() - lastFetchTime < CACHE_DURATION &&
+                (pinCode == lastPinCode || (pinCode == null && lastPinCode.isEmpty()))) {
                 Log.d(TAG, "getCurrentWeather: Using cached weather data from ${(System.currentTimeMillis() - lastFetchTime)/1000} seconds ago")
                 return@withContext cachedWeatherData
             }
             
-            // Get current location
+            // If PIN code is provided, use it for weather lookup
+            if (pinCode != null && pinCode.isNotEmpty()) {
+                val weatherData = fetchWeatherDataByPinCode(pinCode)
+                if (weatherData != null) {
+                    // Cache the result with PIN code
+                    cachedWeatherData = weatherData
+                    lastFetchTime = System.currentTimeMillis()
+                    lastPinCode = pinCode
+                    
+                    Log.d(TAG, "getCurrentWeather: Successfully fetched weather data for PIN $pinCode: " +
+                        "${weatherData.condition}, ${weatherData.temperature}°C, ${weatherData.humidity}%, rain ${weatherData.rainChance}%")
+                    
+                    return@withContext weatherData
+                }
+            }
+            
+            // Fallback to device location if PIN code is not provided or lookup failed
             val location = getLocation()
             if (location == null) {
                 Log.w(TAG, "getCurrentWeather: Could not get device location")
@@ -71,7 +89,7 @@ class WeatherService @Inject constructor(
             Log.d(TAG, "getCurrentWeather: Got location: ${location.latitude}, ${location.longitude}")
             
             // Fetch weather data from Google Weather API
-            val weatherData = fetchWeatherData(location.latitude, location.longitude)
+            val weatherData = fetchWeatherDataByCoordinates(location.latitude, location.longitude)
             
             if (weatherData == null) {
                 Log.e(TAG, "getCurrentWeather: Failed to fetch weather data from API")
@@ -84,6 +102,7 @@ class WeatherService @Inject constructor(
             // Cache the result
             cachedWeatherData = weatherData
             lastFetchTime = System.currentTimeMillis()
+            lastPinCode = "" // Clear PIN code cache since we used coordinates
             
             return@withContext weatherData
         } catch (e: Exception) {
@@ -111,11 +130,34 @@ class WeatherService @Inject constructor(
         }
     }
     
-    private fun fetchWeatherData(latitude: Double, longitude: Double): WeatherData? {
+    private fun fetchWeatherDataByPinCode(pinCode: String): WeatherData? {
         val apiKey = BuildConfig.GOOGLE_WEATHER_API_KEY
         
         // Check if API key is valid
-        if (apiKey.isBlank() || apiKey == "your_actual_google_weather_api_key_here") {
+        if (apiKey.isBlank()) {
+            Log.e(TAG, "Weather API key is missing or invalid")
+            return null
+        }
+        
+        // Use PIN code for location lookup in Google Weather API
+        // Note: In Google Weather API, we're using address parameter with PIN code
+        val url = "https://weather.googleapis.com/v1/currentConditions:lookup?key=$apiKey&location.address=India+$pinCode"
+        
+        Log.d(TAG, "fetchWeatherDataByPinCode: Making API request to Google Weather API with PIN code $pinCode")
+        
+        val request = Request.Builder()
+            .url(url)
+            .header("X-Goog-Api-Key", apiKey)
+            .build()
+            
+        return makeWeatherApiRequest(request)
+    }
+    
+    private fun fetchWeatherDataByCoordinates(latitude: Double, longitude: Double): WeatherData? {
+        val apiKey = BuildConfig.GOOGLE_WEATHER_API_KEY
+        
+        // Check if API key is valid
+        if (apiKey.isBlank()) {
             Log.e(TAG, "Weather API key is missing or invalid")
             return null
         }
@@ -123,28 +165,32 @@ class WeatherService @Inject constructor(
         // Google Weather API endpoint for current conditions using URL parameters
         val url = "https://weather.googleapis.com/v1/currentConditions:lookup?key=$apiKey&location.latitude=$latitude&location.longitude=$longitude"
         
-        Log.d(TAG, "fetchWeatherData: Making API request to Google Weather API")
+        Log.d(TAG, "fetchWeatherDataByCoordinates: Making API request to Google Weather API")
         
         val request = Request.Builder()
             .url(url)
             .header("X-Goog-Api-Key", apiKey)
             .build()
         
+        return makeWeatherApiRequest(request)
+    }
+    
+    private fun makeWeatherApiRequest(request: Request): WeatherData? {
         return try {
             val response = okHttpClient.newCall(request).execute()
             if (response.isSuccessful) {
-                Log.d(TAG, "fetchWeatherData: API request successful with code ${response.code}")
+                Log.d(TAG, "makeWeatherApiRequest: API request successful with code ${response.code}")
                 
                 val responseBody = response.body?.string() ?: ""
                 if (responseBody.isBlank()) {
-                    Log.e(TAG, "fetchWeatherData: API returned empty response body")
+                    Log.e(TAG, "makeWeatherApiRequest: API returned empty response body")
                     return null
                 }
                 
                 val json = JSONObject(responseBody)
                 parseWeatherData(json)
             } else {
-                Log.e(TAG, "fetchWeatherData: API Error ${response.code}: ${response.message}")
+                Log.e(TAG, "makeWeatherApiRequest: API Error ${response.code}: ${response.message}")
                 
                 // Log detailed error information
                 val errorBody = response.body?.string()
@@ -155,7 +201,7 @@ class WeatherService @Inject constructor(
                 null
             }
         } catch (e: Exception) {
-            Log.e(TAG, "fetchWeatherData: Exception during API request", e)
+            Log.e(TAG, "makeWeatherApiRequest: Exception during API request", e)
             null
         }
     }

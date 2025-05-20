@@ -451,8 +451,9 @@ class SmartAdvisoryFragment : Fragment() {
                 val currentUser = userRepository.getCurrentUserSync()
                 val userName = currentUser?.name ?: "cvr" // Default to a generic name
                 val crop = currentUser?.crop ?: prefsManager.getSelectedCrop() ?: ""
+                val pinCode = currentUser?.pinCode ?: "" // Get PIN code for weather lookup
                 val stage = binding.growthStageTextView.text.toString()
-                val weather = weatherService.getCurrentWeather()
+                val weather = weatherService.getCurrentWeather(pinCode)
                 
                 val prompt = buildString {
                     append("I'm growing $crop in the $stage. ")

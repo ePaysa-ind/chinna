@@ -32,22 +32,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:hint="Village Name (min 3 characters)"
+        android:hint="PIN Code (6 digits)"
         android:textColorHint="@color/dark_text_secondary"
         app:boxBackgroundMode="outline"
         app:boxStrokeColor="@color/dark_accent"
         app:hintTextColor="@color/dark_accent"
-        app:helperText="Enter at least 3 letters, no numbers"
-        app:helperTextEnabled="true">
+        app:helperText="Enter 6-digit PIN code"
+        app:helperTextEnabled="true"
+        app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edit_village"
+            android:id="@+id/edit_pincode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:textColor="@color/dark_text_primary"
             android:imeOptions="actionNext"
-            android:inputType="textPersonName" />
+            android:inputType="number"
+            android:maxLength="6" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

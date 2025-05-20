@@ -16,7 +16,7 @@ class UserRepository @Inject constructor(
     suspend fun saveUser(
         mobile: String,
         name: String,
-        village: String,
+        pinCode: String,
         acreage: Double,
         crop: String,
         sowingDate: Long,
@@ -25,7 +25,7 @@ class UserRepository @Inject constructor(
         val user = UserEntity(
             mobile = mobile,
             name = name,
-            village = village,
+            pinCode = pinCode,
             acreage = acreage,
             crop = crop,
             sowingDate = sowingDate,

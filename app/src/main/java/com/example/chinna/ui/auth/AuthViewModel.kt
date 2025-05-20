@@ -31,7 +31,7 @@ class AuthViewModel @Inject constructor(
                 userRepository.saveUser(
                     mobile = userData.mobile,
                     name = userData.name,
-                    village = userData.village,
+                    pinCode = userData.pinCode,
                     acreage = userData.acreage,
                     crop = userData.crop,
                     sowingDate = userData.sowingDate,

@@ -169,7 +169,7 @@ class PracticesFragment : Fragment() {
         
         // Get references to input fields
         val nameInput = dialogView.findViewById<AutoCompleteTextView>(R.id.edit_name)
-        val villageInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_village)
+        val villageInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_pincode)
         val acreageInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_acreage)
         val sowingDateInput = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_sowing_date)
         
@@ -180,7 +180,7 @@ class PracticesFragment : Fragment() {
             currentUser?.let { user ->
                 requireActivity().runOnUiThread {
                     nameInput.setText(user.name)
-                    villageInput.setText(user.village)
+                    villageInput.setText(user.pinCode)
                     acreageInput.setText(user.acreage.toString())
                     
                     // Format and set sowing date if available
@@ -343,12 +343,12 @@ class PracticesFragment : Fragment() {
         prefs.edit().putStringSet("names", namesSet).apply()
     }
     
-    private fun saveUserData(name: String, village: String, acreage: String, sowingDate: String) {
+    private fun saveUserData(name: String, pinCode: String, acreage: String, sowingDate: String) {
         // Save to preferences
         val prefs = requireContext().getSharedPreferences("farmer_details", Context.MODE_PRIVATE)
         prefs.edit().apply {
             putString("name", name)
-            putString("village", village)
+            putString("pinCode", pinCode)
             putString("acreage", acreage)
             putString("sowing_date", sowingDate)
             apply()

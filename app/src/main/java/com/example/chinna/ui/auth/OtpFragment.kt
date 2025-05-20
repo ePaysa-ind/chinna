@@ -233,7 +233,7 @@ class OtpFragment : Fragment() {
         // Get stored data from login fragment
         val sharedPref = requireActivity().getSharedPreferences("login_data", android.content.Context.MODE_PRIVATE)
         val name = sharedPref.getString("name", "") ?: ""
-        val village = sharedPref.getString("village", "") ?: ""
+        val pinCode = sharedPref.getString("pinCode", "") ?: ""
         val acreage = sharedPref.getFloat("acreage", 0f).toDouble()
         val crop = sharedPref.getString("crop", "") ?: ""
         val soilType = sharedPref.getString("soilType", "") ?: ""
@@ -244,7 +244,7 @@ class OtpFragment : Fragment() {
                 userRepository.saveUser(
                     mobile = args.phoneNumber.replace("+91", ""),
                     name = name,
-                    village = village,
+                    pinCode = pinCode,
                     acreage = acreage,
                     crop = crop,
                     sowingDate = sowingDate,

@@ -42,6 +42,9 @@ class PracticesSummaryFragment : Fragment() {
     @Inject
     lateinit var prefsManager: PrefsManager
     
+    @Inject
+    lateinit var userRepository: com.example.chinna.data.repository.UserRepository
+    
     private var _binding: FragmentPracticesSummaryBinding? = null
     private val binding get() = _binding!!
     private val args: PracticesSummaryFragmentArgs by navArgs()
@@ -502,10 +505,21 @@ class PracticesSummaryFragment : Fragment() {
                 // Show loading state
                 binding.weatherText.text = "Loading weather data..."
                 
-                // Log attempt to fetch weather
-                android.util.Log.d("PracticesSummaryFragment", "Attempting to fetch weather data")
+                // Get user data for weather lookup
+                val currentUserData = try {
+                    userRepository.getCurrentUserSync()
+                } catch (e: Exception) {
+                    android.util.Log.e("PracticesSummaryFragment", "Error getting user data: ${e.message}")
+                    null
+                }
                 
-                val weather = weatherService.getCurrentWeather()
+                val pinCode = currentUserData?.pinCode ?: ""
+                
+                // Log attempt to fetch weather
+                android.util.Log.d("PracticesSummaryFragment", 
+                    "Attempting to fetch weather data" + if (pinCode.isNotEmpty()) " for PIN code: $pinCode" else "")
+                
+                val weather = weatherService.getCurrentWeather(pinCode)
                 if (weather != null) {
                     // Log successful weather fetch
                     android.util.Log.d("PracticesSummaryFragment", 
