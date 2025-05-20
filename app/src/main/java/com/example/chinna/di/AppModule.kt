@@ -98,12 +98,21 @@ object AppModule {
     
     @Provides
     @Singleton
-    fun provideFirebaseAuth(@ApplicationContext context: Context): FirebaseAuth {
-        // Ensure Firebase is initialized before getting auth
+    fun provideFirebaseOptionsProvider(): FirebaseOptionsProvider {
+        return FirebaseOptionsProvider()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(
+        @ApplicationContext context: Context,
+        firebaseOptionsProvider: FirebaseOptionsProvider
+    ): FirebaseAuth {
+        // Ensure Firebase is initialized with secure API key before getting auth
         try {
-            if (FirebaseApp.getApps(context).isEmpty()) {
-                android.util.Log.w("AppModule", "Firebase apps empty in auth provider, initializing")
-                FirebaseApp.initializeApp(context)
+            val initialized = firebaseOptionsProvider.initializeFirebaseWithSecureKey(context)
+            if (!initialized) {
+                android.util.Log.w("AppModule", "Secure Firebase initialization failed, falling back to default")
             }
             
             return Firebase.auth

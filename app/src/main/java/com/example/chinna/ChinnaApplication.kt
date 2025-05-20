@@ -69,41 +69,9 @@ class ChinnaApplication : Application() {
     }
     
     private fun initializeFirebaseSafely() {
-        try {
-            // Try multiple times with short delays to ensure initialization
-            var attempts = 0
-            var initialized = false
-            
-            while (attempts < 3 && !initialized) {
-                try {
-                    if (FirebaseApp.getApps(this).isEmpty()) {
-                        FirebaseApp.initializeApp(this)
-                        Log.d("ChinnaApp", "Firebase initialized successfully")
-                        initialized = true
-                    } else {
-                        Log.d("ChinnaApp", "Firebase already initialized")
-                        initialized = true
-                    }
-                } catch (e: Exception) {
-                    attempts++
-                    Log.e("ChinnaApp", "Firebase initialization attempt $attempts failed", e)
-                    
-                    if (attempts < 3) {
-                        // Wait a bit before trying again
-                        try {
-                            Thread.sleep(200)
-                        } catch (ie: InterruptedException) {
-                            // ignore
-                        }
-                    }
-                }
-            }
-            
-            if (!initialized) {
-                Log.e("ChinnaApp", "Firebase initialization ultimately failed after $attempts attempts")
-            }
-        } catch (e: Exception) {
-            Log.e("ChinnaApp", "Firebase initialization failed", e)
-        }
+        // We no longer need this method as Firebase initialization is done in the AppModule
+        // using FirebaseOptionsProvider which uses the secure API key from local.properties
+        // This is left as a stub for backward compatibility
+        Log.d("ChinnaApp", "Firebase initialization delegated to FirebaseOptionsProvider")
     }
 }

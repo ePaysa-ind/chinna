@@ -8,3 +8,7 @@ sdk.dir=/path/to/your/Android/Sdk
 GEMINI_API_KEY=your_actual_gemini_api_key_here
 GOOGLE_WEATHER_API_KEY=your_actual_google_weather_api_key_here
 GOOGLE_MAPS_API_KEY=your_actual_google_maps_api_key_here
+
+# Firebase credentials
+# Extract the API key from google-services.json and place it here
+FIREBASE_API_KEY=your_firebase_api_key_here

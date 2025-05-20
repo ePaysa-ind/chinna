@@ -59,8 +59,7 @@ keystore.properties
 .cxx/
 
 # Google Services (e.g. APIs or Firebase)
-# Commented out to include in repo for this project
-# google-services.json
+google-services.json
 
 # Freeline
 freeline.py
