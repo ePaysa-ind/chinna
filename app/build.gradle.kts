@@ -74,7 +74,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
-            isShrinkResources = true
+            isShrinkResources = false // Disable resource shrinking temporarily
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -129,6 +129,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-appcheck") //do not remove
+    implementation("com.google.firebase:firebase-appcheck-playintegrity") //do not remove
+    implementation("com.google.firebase:firebase-appcheck-debug") //for debug builds
     
     // Chrome Custom Tabs for in-app browser
     implementation("androidx.browser:browser:1.7.0")

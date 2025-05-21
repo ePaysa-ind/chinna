@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.multidex.MultiDex
 import com.example.chinna.data.remote.AuthService
 import com.google.firebase.FirebaseApp
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import dagger.hilt.android.HiltAndroidApp
 import java.io.File
 import javax.inject.Inject
@@ -47,8 +49,28 @@ class ChinnaApplication : Application() {
         // Ensure app data directory access
         ensureAppDataAccess()
         
-        // Initialize Firebase safely
+        // Initialize Firebase safely - this is handled by Hilt
         initializeFirebaseSafely()
+        
+        // Initialize Firebase App Check AFTER Firebase initialization
+        try {
+            // Make sure Firebase is initialized before setting up App Check
+            if (FirebaseApp.getApps(this).isNotEmpty()) {
+                val firebaseAppCheck = FirebaseAppCheck.getInstance()
+                
+                // For production, use Play Integrity
+                Log.d("ChinnaApp", "Using Play Integrity for Firebase App Check")
+                firebaseAppCheck.installAppCheckProviderFactory(
+                    PlayIntegrityAppCheckProviderFactory.getInstance()
+                )
+                
+                Log.d("ChinnaApp", "Firebase App Check initialized successfully")
+            } else {
+                Log.e("ChinnaApp", "Firebase not initialized, cannot set up App Check")
+            }
+        } catch (e: Exception) {
+            Log.e("ChinnaApp", "Failed to initialize Firebase App Check", e)
+        }
         
         // Configure Firebase Auth - this is critical for consistent OTP verification
         // Detection if the user is an admin will be handled inside the method
