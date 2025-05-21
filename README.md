@@ -9,8 +9,10 @@ AI-powered pest and disease identification app for Indian farmers, optimized for
 - 🌿 **Plant Validation**: Validates and identifies plant type
 - 🖼️ **Gallery Support**: Pick from gallery or use camera
 - 🌐 **Offline Support**: Works without internet connection
-- 🌾 **Package of Practices**: Personalized crop management guides for 8 crops
-- 🗓️ **2-Week Scheduling**: Actionable farm activity timeline
+- 🌾 **Package of Practices**: API-driven personalized crop management guides for 8 crops
+- 🗓️ **2-Week Scheduling**: API-based actionable farm activity timeline
+- 🔍 **Crop Statistics**: Dynamic statistics from AI (harvest days, flowering, yield, etc.)
+- 🐛 **Pest Prevention**: Region-specific pest prevention advice via API
 - 📊 **History Tracking**: View past pest identification results
 - 🌙 **Dark Theme**: Designed for outdoor use in bright sunlight
 - 📋 **Form Validation**: Data validation with clear feedback
@@ -34,10 +36,12 @@ AI-powered pest and disease identification app for Indian farmers, optimized for
 - MVVM Architecture
 - Firebase Authentication
 - Google Gemini AI (1.5 Flash)
+- Google Weather API
 - CameraX
 - Navigation Component
 - Hilt Dependency Injection
 - Material Design 3
+- API-driven content architecture
 
 ## Setup
 
@@ -47,7 +51,10 @@ AI-powered pest and disease identification app for Indian farmers, optimized for
    sdk.dir=YOUR_ANDROID_SDK_PATH
    GEMINI_API_KEY=YOUR_GEMINI_API_KEY
    GOOGLE_WEATHER_API_KEY=YOUR_WEATHER_API_KEY
+   GOOGLE_MAPS_API_KEY=YOUR_MAPS_API_KEY
    FIREBASE_API_KEY=YOUR_FIREBASE_API_KEY
+   FIREBASE_PROJECT_ID=YOUR_FIREBASE_PROJECT_ID
+   FIREBASE_APP_ID=YOUR_FIREBASE_APP_ID
    ```
 3. Add Firebase configuration (`google-services.json`) to the app directory
 4. Generate SHA-256 fingerprint for Firebase:

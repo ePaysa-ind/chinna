@@ -5,7 +5,7 @@
 1. **Google Weather API**
    - Endpoint: `https://weather.googleapis.com/v1/currentConditions:lookup`
    - Status: ✅ Implemented (Pre-GA Preview)
-   - API Key: `AIzaSyDOdWhhkPl4Lc5FN9A3NU1or0CARD_YkR8`
+   - API Key: [Stored in local.properties]
 
 2. **Alternative Implementation (WeatherServiceV2)**
    - Primary: Google Weather API
@@ -47,12 +47,12 @@ To test the weather functionality:
 
 ## API Keys
 
-1. Google Weather API Key: `AIzaSyDOdWhhkPl4Lc5FN9A3NU1or0CARD_YkR8`
+1. Google Weather API Key: [Stored in local.properties]
    - Used for Google Weather API
    - Also used for Google Maps SDK
    - Requires enabling Weather API in Google Cloud Console
 
-2. OpenWeatherMap API Key: `7177c8f1e42de2c8e9ca4dc0877a3e76`
+2. OpenWeatherMap API Key: [Stored in local.properties]
    - Free tier (1000 calls/day)
    - Used as fallback weather service
 

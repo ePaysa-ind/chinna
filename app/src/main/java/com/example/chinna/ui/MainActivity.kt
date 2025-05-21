@@ -18,7 +18,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.chinna.R
 import com.example.chinna.databinding.ActivityMainBinding
 import com.example.chinna.data.repository.UserRepository
-import com.example.chinna.ui.auth.AuthActivity
+import com.example.chinna.ui.auth.AuthActivityUpdated
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -149,10 +149,18 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.smartAdvisoryFragment -> {
                     if (navController.currentDestination?.id != R.id.smartAdvisoryFragment) {
-                        navController.navigate(R.id.smartAdvisoryFragment, null, NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_graph, false, true)
-                            .setLaunchSingleTop(true)
-                            .build())
+                        Log.d("MainActivity", "Navigating to smartAdvisoryFragment")
+                        try {
+                            navController.navigate(R.id.smartAdvisoryFragment, null, NavOptions.Builder()
+                                .setPopUpTo(R.id.nav_graph, false, true)
+                                .setLaunchSingleTop(true)
+                                .build())
+                            Log.d("MainActivity", "Successfully navigated to smartAdvisoryFragment")
+                        } catch (e: Exception) {
+                            Log.e("MainActivity", "Error navigating to smartAdvisoryFragment", e)
+                        }
+                    } else {
+                        Log.d("MainActivity", "Already on smartAdvisoryFragment")
                     }
                     true
                 }
@@ -301,9 +309,9 @@ class MainActivity : AppCompatActivity() {
             //    to prevent security rule violations during logout
             disableAllFirebaseListeners()
             
-            // 2. Clear shared preferences after disconnecting listeners
-            getSharedPreferences("selected_crop", Context.MODE_PRIVATE).edit().clear().apply()
-            getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().clear().apply()
+            // 2. Only clear session-related preferences, not all preferences
+            // This preserves user preferences while ending the session
+            getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().remove(KEY_LAST_ACTIVITY).apply()
             
             // 3. Clear local repository data BEFORE signing out
             //    (this ensures we're not making authenticated requests after token invalidation)
@@ -316,13 +324,9 @@ class MainActivity : AppCompatActivity() {
                     val auth = FirebaseAuth.getInstance()
                     auth.signOut()
                     
-                    // 5. Force clear Firebase cache AFTER signout
-                    try {
-                        val firebaseContext = FirebaseAuth.getInstance().app.applicationContext
-                        clearDirectory(File(firebaseContext.cacheDir, "firebase"))
-                    } catch (e: Exception) {
-                        Log.e("MainActivity", "Error clearing Firebase cache: ${e.message}", e)
-                    }
+                    // No longer clearing Firebase cache to preserve data for future logins
+                    // This allows user data to be retrieved when using the same phone number
+                    Log.d("MainActivity", "Skipping Firebase cache clear to preserve data for future sessions")
                     
                     // Navigate to login with longer delay to ensure all cleanup is complete
                     Handler(Looper.getMainLooper()).postDelayed({
@@ -349,19 +353,13 @@ class MainActivity : AppCompatActivity() {
             // Cancel any pending Firestore listeners/operations
             val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
             
-            // Force close any ongoing connections
-            // This is a somewhat aggressive approach but helps prevent lingering connections
-            firestore.terminate()
-            
-            // Give time for termination to complete
-            Handler(Looper.getMainLooper()).postDelayed({
-                try {
-                    // Restart the connection for future use (will be dormant until next auth)
-                    firestore.clearPersistence()
-                } catch (e: Exception) {
-                    Log.e("MainActivity", "Error clearing Firestore persistence: ${e.message}", e)
-                }
-            }, 300)
+            // We're no longer using Firestore for user data, 
+            // but still disable network since we're not using it
+            firestore.disableNetwork().addOnSuccessListener {
+                Log.d("MainActivity", "Firestore network disabled - user data stored locally only")
+            }.addOnFailureListener { e ->
+                Log.e("MainActivity", "Error disabling Firestore network: ${e.message}", e)
+            }
         } catch (e: Exception) {
             Log.e("MainActivity", "Error disabling Firebase listeners: ${e.message}", e)
         }
@@ -388,7 +386,7 @@ class MainActivity : AppCompatActivity() {
     private fun navigateToLogin() {
         try {
             // Use different flags to prevent activity recreation loops
-            val intent = Intent(this, AuthActivity::class.java)
+            val intent = Intent(this, AuthActivityUpdated::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             intent.putExtra("CLEAN_LOGIN", true) // Signal this is a fresh login
             startActivity(intent)

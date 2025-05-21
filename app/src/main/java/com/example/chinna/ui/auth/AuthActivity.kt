@@ -27,6 +27,12 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+/**
+ * DEPRECATED: This is the old authentication implementation.
+ * Use AuthActivityUpdated instead, which implements the two-step authentication process.
+ * This class is kept only for backward compatibility until the migration is complete.
+ * DO NOT USE THIS CLASS FOR NEW FEATURES OR BUG FIXES.
+ */
 @AndroidEntryPoint
 class AuthActivity : AppCompatActivity() {
     

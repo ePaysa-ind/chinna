@@ -14,7 +14,7 @@ https://weather.googleapis.com/v1/currentConditions:lookup?key={API_KEY}&locatio
 ```
 
 ### API Key
-`AIzaSyDOdWhhkPl4Lc5FN9A3NU1or0CARD_YkR8`
+[Stored securely in local.properties]
 
 ### Request Format
 - Method: GET

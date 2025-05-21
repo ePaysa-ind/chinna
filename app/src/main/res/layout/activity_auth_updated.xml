@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/dark_background"
     android:padding="@dimen/padding_large"
-    tools:context=".ui.auth.AuthActivity">
+    tools:context=".ui.auth.AuthActivityUpdated">
 
     <ImageView
         android:id="@+id/iv_logo"

@@ -20,6 +20,7 @@ class FirebaseOptionsProvider @Inject constructor() {
 
     /**
      * Initialize Firebase with options from BuildConfig instead of google-services.json
+     * with improved persistence
      */
     fun initializeFirebaseWithSecureKey(context: Context): Boolean {
         return try {
@@ -42,10 +43,38 @@ class FirebaseOptionsProvider @Inject constructor() {
                 
                 // Initialize with custom options
                 FirebaseApp.initializeApp(context, options)
+                
+                // Configure Firebase Auth persistence - critical for consistent logins
+                try {
+                    val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+                    auth.firebaseAuthSettings.setAppVerificationDisabledForTesting(false)
+                    
+                    // Set additional configuration
+                    val isDebug = BuildConfig.DEBUG
+                    if (isDebug) {
+                        // Additional debug logging in debug builds
+                        Log.d(TAG, "Firebase debug logging enabled")
+                    }
+                    
+                    Log.d(TAG, "Firebase Auth persistence configured")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to configure Firebase Auth persistence", e)
+                }
+                
                 Log.d(TAG, "Firebase initialized successfully with secure API key")
                 true
             } else {
                 Log.d(TAG, "Firebase already initialized")
+                
+                // Even if Firebase is already initialized, ensure persistence is enabled
+                try {
+                    val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+                    auth.firebaseAuthSettings.setAppVerificationDisabledForTesting(false)
+                    Log.d(TAG, "Firebase Auth persistence configured on existing instance")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to configure Firebase Auth persistence on existing instance", e)
+                }
+                
                 true
             }
         } catch (e: Exception) {

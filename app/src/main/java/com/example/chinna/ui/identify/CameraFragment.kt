@@ -239,15 +239,15 @@ class CameraFragment : Fragment() {
                 
                 cameraProvider = cameraProviderFuture.get()
                 
-                // Build preview
+                // Build preview with target resolution
                 val preview = Preview.Builder()
-                    .setTargetResolution(android.util.Size(1920, 1080))
+                    .setTargetAspectRatio(android.util.Rational.parseRational("16:9").toInt())
                     .build()
                 
-                // ImageCapture
+                // ImageCapture with target resolution
                 imageCapture = ImageCapture.Builder()
                     .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                    .setTargetResolution(android.util.Size(1920, 1080))
+                    .setTargetAspectRatio(android.util.Rational.parseRational("16:9").toInt())
                     .setJpegQuality(85)
                     .build()
                 

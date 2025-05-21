@@ -17,6 +17,10 @@ class ChinnaApplication : Application() {
     @Inject
     lateinit var authService: AuthService
     
+    // Inject our database fixer
+    @Inject
+    lateinit var databaseFixer: com.example.chinna.util.DatabaseFixer
+    
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
         // Enable multi-dex to handle larger code
@@ -37,6 +41,9 @@ class ChinnaApplication : Application() {
             // ignore
         }
         
+        // Check and fix database issues before any database access
+        fixDatabaseIssues()
+        
         // Ensure app data directory access
         ensureAppDataAccess()
         
@@ -52,6 +59,24 @@ class ChinnaApplication : Application() {
             Log.d("ChinnaApp", "Firebase Auth configured successfully. Admin mode: $isAdmin")
         } catch (e: Exception) {
             Log.e("ChinnaApp", "Failed to configure Firebase Auth", e)
+        }
+    }
+    
+    /**
+     * Check and fix any database integrity issues
+     */
+    private fun fixDatabaseIssues() {
+        try {
+            // Only delete database if there are actual integrity issues
+            if (databaseFixer.hasDatabaseIntegrityIssues()) {
+                Log.w("ChinnaApp", "Database integrity issues detected, attempting to fix")
+                val deleted = databaseFixer.deleteRoomDatabase()
+                Log.d("ChinnaApp", "Database deleted: $deleted")
+            } else {
+                Log.d("ChinnaApp", "Database integrity check passed, no action needed")
+            }
+        } catch (e: Exception) {
+            Log.e("ChinnaApp", "Error fixing database", e)
         }
     }
     

@@ -25,7 +25,8 @@
       "Bash(cat:*)",
       "Bash($JAVA_HOME/bin/keytool:*)",
       "Bash(chmod:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

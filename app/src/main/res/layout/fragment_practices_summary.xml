@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_primary">
+    android:background="@color/dark_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,12 +52,12 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/crop_local_name"
+                    android:id="@+id/crop_estimates_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Local Name"
+                    android:text="Estimates"
                     android:textColor="@color/dark_text_secondary"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -78,7 +78,7 @@
                 android:textStyle="bold"
                 android:layout_marginLeft="12dp"
                 android:paddingHorizontal="4dp"
-                android:background="@color/dark_primary"
+                android:background="@color/dark_background"
                 android:elevation="1dp" />
 
             <!-- Border container -->
@@ -92,39 +92,13 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/section_border">
 
-                <!-- Growth Stage Section -->
+                <!-- Two-column layout for Crop Stats -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        
-                        <TextView
-                            android:id="@+id/growth_stage_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Flowering"
-                            android:textColor="@color/dark_text_primary"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="4dp" />
-
-                        <TextView
-                            android:id="@+id/days_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Day 49"
-                            android:textColor="@color/dark_text_secondary"
-                            android:textSize="16sp"
-                            android:layout_marginBottom="8dp" />
-                    </LinearLayout>
-
-                    <!-- Quick Stats Section -->
+                    <!-- Left Column -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -135,49 +109,153 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="8dp">
+                            android:orientation="vertical"
+                            android:layout_marginBottom="12dp">
 
                             <TextView
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:text="Days to Harvest"
                                 android:textColor="@color/dark_text_secondary"
-                                android:textSize="14sp" />
+                                android:textSize="14sp"
+                                android:layout_marginBottom="2dp" />
 
                             <TextView
                                 android:id="@+id/days_to_harvest_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="1 days"
-                                android:textColor="@color/dark_accent"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
+                                android:text="120 days"
+                                android:textColor="@color/dark_text_primary"
+                                android:textSize="16sp" />
                         </LinearLayout>
 
-                        <!-- Health Score -->
+                        <!-- Avg Yield -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            android:orientation="vertical"
+                            android:layout_marginBottom="12dp">
 
                             <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Health Score"
-                                android:textColor="@color/dark_text_secondary"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/health_score_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="70%"
-                                android:textColor="@color/green_medium"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
+                                android:text="Avg. Yield"
+                                android:textColor="@color/dark_text_secondary"
+                                android:textSize="14sp"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/avg_yield_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="15-20 qtl/acre"
+                                android:textColor="@color/dark_text_primary"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <!-- Ideal Temperature -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Ideal Temperature"
+                                android:textColor="@color/dark_text_secondary"
+                                android:textSize="14sp"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/ideal_temp_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="25-32°C"
+                                android:textColor="@color/dark_text_primary"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Right Column -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="8dp">
+
+                        <!-- Days to Flowering -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Days to Flowering"
+                                android:textColor="@color/dark_text_secondary"
+                                android:textSize="14sp"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/days_to_flowering_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="35 days"
+                                android:textColor="@color/dark_text_primary"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <!-- Ideal Soil -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Ideal Soil"
+                                android:textColor="@color/dark_text_secondary"
+                                android:textSize="14sp"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/ideal_soil_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Well-drained loamy"
+                                android:textColor="@color/dark_text_primary"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <!-- Ideal Humidity/Rainfall -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Ideal Humidity &amp; Rainfall"
+                                android:textColor="@color/dark_text_secondary"
+                                android:textSize="14sp"
+                                android:layout_marginBottom="2dp" />
+
+                            <TextView
+                                android:id="@+id/ideal_humidity_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="60-70%, moderate rainfall"
+                                android:textColor="@color/dark_text_primary"
+                                android:textSize="16sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -191,37 +269,36 @@
                     android:progressDrawable="@drawable/progress_drawable"
                     android:max="100"
                     android:progress="49"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginBottom="8dp" />
 
-                <!-- Data Sources -->
+                <!-- Conditions Suitability - Hardcoded for now -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Harvest days from crop database"
+                        android:text="Current Conditions:"
                         android:textColor="@color/dark_text_secondary"
-                        android:textSize="12sp"
-                        android:textStyle="italic" />
+                        android:textSize="14sp" />
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:id="@+id/conditions_suitability_text"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Score based on schedule adherence"
-                        android:textColor="@color/dark_text_secondary"
-                        android:textSize="12sp"
-                        android:textStyle="italic" />
+                        android:text="Not ideal (Not Kharif season)"
+                        android:textColor="@color/dark_text_primary"
+                        android:textSize="16sp"
+                        android:layout_marginStart="8dp" />
                 </LinearLayout>
             </LinearLayout>
         </RelativeLayout>
 
-        <!-- Priority Tasks Card -->
+        <!-- Two-Week Guidance Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -240,37 +317,93 @@
                     android:id="@+id/priority_header"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🎯 Two-Week Prevention Tasks"
+                    android:text="Two-Week Guidance"
                     android:textColor="@color/dark_text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp" />
-
+                
+                <!-- Package of Practices Section -->
                 <TextView
-                    android:id="@+id/priority_task_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="• Spray neem oil (5ml/L) weekly against insects."
+                    android:text="Package of Practices"
                     android:textColor="@color/dark_text_primary"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
-                    android:id="@+id/priority_task_2"
+                    android:id="@+id/practice_task_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="• Remove yellow leaves to prevent fungus."
+                    android:text="• Apply FYM (10-15 ton/acre) before sowing"
                     android:textColor="@color/dark_text_primary"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/practice_task_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• Plant in rows 45cm apart, 10cm between seeds"
+                    android:textColor="@color/dark_text_primary"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/practice_task_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• First irrigation immediately after sowing"
+                    android:textColor="@color/dark_text_primary"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="16dp" />
+                
+                <!-- Pest & Disease Prevention Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pest &amp; Disease Prevention"
+                    android:textColor="@color/dark_text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+                
+                <TextView
+                    android:id="@+id/pest_risk_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Likely risks: Monitor for common pests"
+                    android:textColor="@color/dark_text_primary"
+                    android:textSize="16sp"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
-                    android:id="@+id/priority_task_3"
+                    android:id="@+id/prevention_task_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="• Apply 2cm wood ash around plants."
+                    android:text="• Seed treatment with Thiram (3g/kg seeds)"
                     android:textColor="@color/dark_text_primary"
-                    android:textSize="18sp" />
+                    android:textSize="16sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/prevention_task_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• Spray neem oil (5ml/L) weekly"
+                    android:textColor="@color/dark_text_primary"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/prevention_task_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• Remove any diseased plants immediately"
+                    android:textColor="@color/dark_text_primary"
+                    android:textSize="16sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -280,7 +413,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/amber"
+            app:cardBackgroundColor="@color/dark_secondary"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
             android:visibility="gone">
@@ -295,7 +428,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="⚠️ Critical Alert"
-                    android:textColor="@color/dark_primary"
+                    android:textColor="@color/dark_text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
@@ -305,7 +438,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Heavy rain expected. Ensure proper drainage"
-                    android:textColor="@color/dark_primary"
+                    android:textColor="@color/dark_text_primary"
                     android:textSize="16sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -327,7 +460,7 @@
                 android:textStyle="bold"
                 android:layout_marginLeft="12dp"
                 android:paddingHorizontal="4dp"
-                android:background="@color/dark_primary"
+                android:background="@color/dark_background"
                 android:elevation="1dp" />
             
             <!-- Border container -->    

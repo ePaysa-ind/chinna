@@ -32,7 +32,7 @@
                     android:id="@+id/welcome_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Welcome, cvr!"
+                    android:text="@string/welcome_user"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="@color/white"

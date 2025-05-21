@@ -73,10 +73,10 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             val currentUser = userRepository.getCurrentUserSync()
             
-            val displayName = currentUser?.name ?: "Farmer"
+            val displayName = currentUser?.name ?: getString(R.string.default_user_name)
             
             requireActivity().runOnUiThread {
-                binding.welcomeText.text = "Welcome, $displayName!"
+                binding.welcomeText.text = getString(R.string.welcome_user, displayName)
             }
             
             // Update current crop information from user data

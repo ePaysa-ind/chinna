@@ -3,6 +3,7 @@
     
     <!-- Home -->
     <string name="welcome_user">Welcome, %s!</string>
+    <string name="default_user_name">Farmer</string>
     
     <!-- Bottom Navigation -->
     <string name="nav_home">Home</string>
@@ -38,4 +39,10 @@
     <string name="error_invalid_otp">Enter 6 digit OTP</string>
     <string name="error_network">No internet connection</string>
     <string name="error_generic">Something went wrong</string>
+    
+    <!-- Smart Advisory -->
+    <string name="not_sown_yet">Not Sown Yet</string>
+    <string name="user_data_not_found">User data not found. Please login again.</string>
+    <string name="please_select_crop">Please select a crop first</string>
+    <string name="failed_to_load_advisory">Failed to load advisory</string>
 </resources>

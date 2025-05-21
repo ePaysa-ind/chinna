@@ -2,6 +2,8 @@ package com.example.chinna.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
@@ -23,8 +25,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -97,44 +101,28 @@ class AuthActivityUpdated : AppCompatActivity() {
     
     private fun clearFirebaseConnections() {
         try {
-            // Force close any ongoing Firestore connections
-            val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-            firestore.terminate()
-            
             // Check if we're transitioning from a recent logout
             val isAfterLogout = intent.getBooleanExtra("CLEAN_LOGIN", false)
             
             if (isAfterLogout) {
                 Log.d("AuthActivity", "Clean login after logout detected")
                 
-                // Ensure all Firebase connections are closed and cleared
+                // Only sign out if explicitly requested after logout
+                // This prevents clearing authentication state unintentionally
                 FirebaseAuth.getInstance().signOut()
-                
-                // Clear any Firebase cache
-                try {
-                    val cacheDir = File(applicationContext.cacheDir, "firebase")
-                    clearCache(cacheDir)
-                } catch (e: Exception) {
-                    Log.e("AuthActivity", "Cache clearing error: ${e.message}")
-                }
+                Log.d("AuthActivity", "Cleared Firebase Auth state after logout")
+            } else {
+                Log.d("AuthActivity", "Normal login flow, preserving Firebase connections")
             }
         } catch (e: Exception) {
-            Log.e("AuthActivity", "Error clearing Firebase connections: ${e.message}")
+            Log.e("AuthActivity", "Error handling Firebase connections: ${e.message}")
         }
     }
     
+    // We no longer need this method as we're not forcibly clearing the cache
     private fun clearCache(dir: File) {
-        if (dir.exists() && dir.isDirectory) {
-            val files = dir.listFiles()
-            if (files != null) {
-                for (file in files) {
-                    if (file.isDirectory) {
-                        clearCache(file)
-                    }
-                    file.delete()
-                }
-            }
-        }
+        // Method kept for compatibility but no longer used
+        Log.d("AuthActivity", "Cache clearing skipped to preserve authentication state")
     }
     
     private fun initializeAuthentication() {
@@ -147,20 +135,58 @@ class AuthActivityUpdated : AppCompatActivity() {
                 auth = FirebaseAuth.getInstance()
             }
             
-            // If it's a clean login, force sign out to ensure fresh state
+            // Simplified login based on local database only
             if (isCleanLogin) {
-                try {
-                    auth.signOut()
-                    Log.d("AuthActivity", "Forced sign out for clean login")
-                } catch (e: Exception) {
-                    Log.e("AuthActivity", "Error during forced sign out: ${e.message}")
+                Log.d("AuthActivity", "Clean login detected after logout")
+                
+                // Check if Firebase authentication is still active
+                if (auth.currentUser != null) {
+                    Log.d("AuthActivity", "Still authenticated in Firebase after logout")
+                    
+                    // Get phone number from current auth
+                    val mobileNumber = auth.currentUser?.phoneNumber?.replace("+91", "")
+                    if (!mobileNumber.isNullOrEmpty()) {
+                        // Check if we have this user locally
+                        lifecycleScope.launch {
+                            try {
+                                val user = userRepository.getUserByMobile(mobileNumber)
+                                if (user != null) {
+                                    Log.d("AuthActivity", "User data found in local database, navigating to main")
+                                    navigateToMain()
+                                    return@launch
+                                } else {
+                                    Log.d("AuthActivity", "User authenticated but not in local database, continuing to login flow")
+                                }
+                            } catch (e: Exception) {
+                                Log.e("AuthActivity", "Error checking for existing user: ${e.message}")
+                            }
+                        }
+                    }
                 }
             } else {
-                // Only auto-login if not a forced clean login
-                // Check if already logged in
+                // Normal login flow - auto-login if authenticated
                 if (auth.currentUser != null) {
-                    navigateToMain()
-                    return
+                    val mobileNumber = auth.currentUser?.phoneNumber?.replace("+91", "")
+                    if (!mobileNumber.isNullOrEmpty()) {
+                        // Check if user exists in local database
+                        lifecycleScope.launch {
+                            try {
+                                val user = userRepository.getUserByMobile(mobileNumber)
+                                if (user != null) {
+                                    Log.d("AuthActivity", "User authenticated and found in database, navigating to main")
+                                    navigateToMain()
+                                    return@launch
+                                } else {
+                                    Log.d("AuthActivity", "User authenticated but not in database, will show form")
+                                }
+                            } catch (e: Exception) {
+                                Log.e("AuthActivity", "Error checking local database: ${e.message}")
+                            }
+                        }
+                    } else {
+                        navigateToMain()
+                        return
+                    }
                 }
             }
             
@@ -201,33 +227,87 @@ class AuthActivityUpdated : AppCompatActivity() {
     }
     
     private fun checkIfUserExists(mobile: String) {
-        lifecycleScope.launch {
-            try {
-                val user = userRepository.getUserByMobile(mobile)
-                
-                if (user != null) {
-                    // Existing user found
-                    isExistingUser = true
-                    existingUserData = user
-                    setupUserDetailsWithExistingData(user)
-                } else {
-                    // New user
-                    isExistingUser = false
-                    existingUserData = null
-                    setupUserDetailsForNewUser()
+        // First, check if this user is already logged in with Firebase Auth
+        val formattedMobile = "+91" + mobile
+        val currentUser = auth.currentUser
+        
+        // Log current Firebase Auth state for debugging
+        Log.d("AuthActivity", "Current Firebase user: " + (currentUser?.phoneNumber ?: "null"))
+        
+        // If the current user is already authenticated with same mobile number, skip OTP
+        if (currentUser != null && currentUser.phoneNumber == formattedMobile) {
+            Log.d("AuthActivity", "User already authenticated in Firebase, checking database")
+            
+            // Already logged into Firebase with this number, check local database
+            lifecycleScope.launch {
+                try {
+                    // Check if we have user data in local database
+                    val user = userRepository.getUserByMobile(mobile)
+                    
+                    if (user != null) {
+                        // User exists in both Firebase and local database - go straight to main screen
+                        Log.d("AuthActivity", "User exists in both Firebase Auth and database, navigating to main")
+                        navigateToMain()
+                        return@launch
+                    } else {
+                        // User authenticated in Firebase but not in local database
+                        // Show the user details form to collect missing information
+                        Log.w("AuthActivity", "User authenticated in Firebase but not found in database")
+                        isExistingUser = false
+                        existingUserData = null
+                        setupUserDetailsForNewUser()
+                        binding.mobileEntryLayout.root.visibility = View.GONE
+                        binding.userDetailsLayout.root.visibility = View.VISIBLE
+                    }
+                } catch (e: Exception) {
+                    Log.e("AuthActivity", "Error checking user in database: ${e.message}")
+                    showError("Error checking user data: " + e.message)
+                    binding.mobileEntryLayout.progressBar.visibility = View.GONE
+                    binding.mobileEntryLayout.btnContinue.isEnabled = true
                 }
-                
-                // Switch to user details view
-                binding.mobileEntryLayout.root.visibility = View.GONE
-                binding.userDetailsLayout.root.visibility = View.VISIBLE
-                
-            } catch (e: Exception) {
-                Log.e("AuthActivity", "Error checking user: ${e.message}")
-                showError("Error checking user data: ${e.message}")
-                binding.mobileEntryLayout.progressBar.visibility = View.GONE
-                binding.mobileEntryLayout.btnContinue.isEnabled = true
+            }
+        } else {
+            // Not authenticated with Firebase or different number, check local database for pre-fill
+            Log.d("AuthActivity", "User not authenticated in Firebase, checking database")
+            lifecycleScope.launch {
+                try {
+                    val user = userRepository.getUserByMobile(mobile)
+                    
+                    if (user != null) {
+                        // Existing user found in database but not authenticated
+                        Log.d("AuthActivity", "User found in database, preparing details form")
+                        isExistingUser = true
+                        existingUserData = user
+                        setupUserDetailsWithExistingData(user)
+                    } else {
+                        // New user
+                        Log.d("AuthActivity", "New user, showing empty details form")
+                        isExistingUser = false
+                        existingUserData = null
+                        setupUserDetailsForNewUser()
+                    }
+                    
+                    // Switch to user details view
+                    binding.mobileEntryLayout.root.visibility = View.GONE
+                    binding.userDetailsLayout.root.visibility = View.VISIBLE
+                    
+                } catch (e: Exception) {
+                    Log.e("AuthActivity", "Error checking user: " + e.message)
+                    showError("Error checking user data: " + e.message)
+                    binding.mobileEntryLayout.progressBar.visibility = View.GONE
+                    binding.mobileEntryLayout.btnContinue.isEnabled = true
+                }
             }
         }
+    }
+    
+    /**
+     * This method is kept as a stub for compatibility
+     * We no longer sync with Firestore - all user data is stored locally
+     */
+    private fun tryFirestoreSyncForMobile(mobile: String) {
+        // No longer trying to sync with Firestore
+        Log.d("AuthActivity", "Firestore sync disabled - using local data only")
     }
     
     private fun setupUserDetailsWithExistingData(user: UserEntity) {

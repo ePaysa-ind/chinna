@@ -193,7 +193,7 @@ class PracticesFragment : Fragment() {
         }
         
         // Set up village input to only accept letters and spaces and validate length in real-time
-        villageInput.filters = arrayOf(android.text.InputFilter { source, start, end, dest, dstart, dend ->
+        villageInput.filters = arrayOf(android.text.InputFilter { source, start, end, _, _, _ ->
             for (i in start until end) {
                 if (!source[i].isLetter() && !source[i].isWhitespace()) {
                     return@InputFilter ""

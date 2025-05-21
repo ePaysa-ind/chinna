@@ -51,6 +51,12 @@ object AppModule {
     
     @Provides
     @Singleton
+    fun provideDatabaseFixer(@ApplicationContext context: Context): com.example.chinna.util.DatabaseFixer {
+        return com.example.chinna.util.DatabaseFixer(context)
+    }
+    
+    @Provides
+    @Singleton
     fun provideWeatherService(@ApplicationContext context: Context): WeatherService {
         return WeatherService(context)
     }
@@ -58,27 +64,15 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return try {
-            Room.databaseBuilder(
-                context,
-                AppDatabase::class.java,
-                "chinna_database"
-            )
-            .addMigrations(AppDatabase.MIGRATION_1_2)
-            .fallbackToDestructiveMigration()
-            .allowMainThreadQueries() // Temporary for debugging
-            .build()
-        } catch (e: Exception) {
-            android.util.Log.e("AppModule", "Database creation failed, falling back", e)
-            // Fallback - create fresh database
-            Room.databaseBuilder(
-                context,
-                AppDatabase::class.java,
-                "chinna_database"
-            )
-            .fallbackToDestructiveMigration()
-            .build()
-        }
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "chinna_database"
+        )
+        .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
+        .fallbackToDestructiveMigration() // In case migration fails, recreate tables
+        .allowMainThreadQueries() // Temporary for debugging
+        .build()
     }
     
     @Provides

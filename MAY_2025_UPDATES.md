@@ -143,6 +143,74 @@
 
 ---
 *Documentation created: May 18, 2025*
-*Last updated: May 18, 2025, 4:30 PM*
+
+## May 21, 2025 Update - Authentication & Data Persistence Fixes
+
+### Issues Fixed:
+1. **Firebase Authentication State Persistence**
+   - Fixed issue where users had to re-enter all information after logging out and back in
+   - Implemented proper user data restoration from Firestore
+   - Ensured authentication state persists across app restarts
+
+2. **Improved Logout Process**
+   - Modified logout to maintain sufficient cached data for faster re-login
+   - Changed from terminating Firestore connections to disabling network
+   - Preserved authentication state during navigation between activities
+
+3. **Enhanced Data Synchronization**
+   - Added better Firestore data retrieval by both UID and phone number
+   - Implemented proactive sync during application startup
+   - Fixed error handling for network and authentication failures
+
+4. **Database Migration Robustness**
+   - Enhanced village to PIN code migration with better error handling
+   - Added automatic recovery paths for corrupted database schema
+   - Improved logging for better troubleshooting
+
+### Technical Changes:
+- Modified `ChinnaApplication.kt` to only delete database on actual integrity issues
+- Enhanced `FirebaseOptionsProvider.kt` with better persistence configuration
+- Improved `AuthActivityUpdated.kt` to restore user data from Firestore
+- Added `tryFirestoreSyncForMobile()` to handle automatic data syncing
+- Fixed `MainActivity.kt` logout process to preserve Firebase cache
+- Implemented proper database integrity checking
+
+### Testing Notes:
+- Verified that logging out and back in preserves user data
+- Confirmed that authentication state is maintained correctly
+- Tested PIN code validation with various input formats
+- Verified data syncing works properly after logout/login cycle
+
+## May 20, 2025 Update (7:45 PM)
+1. **API-Driven Agricultural Information**
+   - **CRITICAL**: Removed ALL hardcoded agricultural content
+   - Implemented fully API-driven approach for all crop guidance
+   - Made PracticesSummaryFragment fetch all crop data from GeminiService
+   - Enhanced GeminiService with new methods:
+     - getCropData() - Returns crop statistics (harvest days, flowering, yield, etc.)
+     - getCropSuitabilityAdvice() - Provides location-aware crop suitability
+     - getLikelyPests() - Identifies potential pests based on conditions
+     - getPreemptivePestAdvice() - Gives region-specific prevention recommendations
+
+2. **UI Enhancements**
+   - Improved crop statistics display with two-column layout
+   - Enhanced weather display with current time
+   - Added estimates label below crop name
+   - Changed background from green to black for consistency
+   - Improved text visibility by changing yellow text to white
+
+3. **Error Handling**
+   - Added proper error handling for all API calls
+   - Implemented non-agricultural fallback messages
+   - Enhanced loading states for better user experience
+   - Added proper HTTP error handling in GeminiService
+
+4. **Code Quality**
+   - Fixed multiple compilation errors
+   - Added proper documentation
+   - Enhanced code structure with better separation of concerns
+   - Improved lifecycle management
+
+*Last updated: May 20, 2025, 7:45 PM*
 *App Version: 1.0.0*
 *Status: Ready for Beta Testing*

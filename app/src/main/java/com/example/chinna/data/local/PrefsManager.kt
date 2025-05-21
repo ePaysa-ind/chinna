@@ -106,6 +106,13 @@ class PrefsManager @Inject constructor(
         prefs.edit().clear().apply()
     }
     
+    // Clear only login state but preserve other preferences
+    fun clearLoginState() {
+        prefs.edit()
+            .remove(KEY_USER_LOGGED_IN)
+            .apply()
+    }
+    
     // Login status management
     fun saveUserLoggedIn(isLoggedIn: Boolean) {
         prefs.edit().putBoolean(KEY_USER_LOGGED_IN, isLoggedIn).apply()

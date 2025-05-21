@@ -1,6 +1,7 @@
 package com.example.chinna.ui.smart_advisory
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import androidx.lifecycle.lifecycleScope
 import com.example.chinna.data.repository.UserRepository
-import kotlinx.coroutines.withContext
+import com.example.chinna.R
 
 @AndroidEntryPoint
 class SmartAdvisoryFragment : Fragment() {
@@ -57,6 +58,15 @@ class SmartAdvisoryFragment : Fragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        // Ensure content is visible initially before setup
+        binding.contentScrollView.visibility = View.VISIBLE
+        binding.loadingProgressBar.visibility = View.GONE
+        binding.errorLayout.visibility = View.GONE
+        
+        // Log fragment creation for debugging
+        Log.d("SmartAdvisory", "SmartAdvisoryFragment onViewCreated called")
+        
         setupUI()
         loadSmartAdvisory()
     }
@@ -83,18 +93,21 @@ class SmartAdvisoryFragment : Fragment() {
     }
     
     private fun loadSmartAdvisory() {
+        Log.d("SmartAdvisory", "Loading smart advisory data...")
         lifecycleScope.launch {
             try {
                 binding.swipeRefreshLayout.isRefreshing = true
                 binding.loadingProgressBar.visibility = View.VISIBLE
-                binding.contentScrollView.visibility = View.GONE
+                binding.contentScrollView.visibility = View.VISIBLE // Changed to VISIBLE to ensure content is shown
                 binding.errorLayout.visibility = View.GONE
                 
                 // Get current user from database
                 val currentUser = userRepository.getCurrentUserSync()
+                Log.d("SmartAdvisory", "Current user: " + (currentUser?.name ?: "null"))
                 
                 if (currentUser == null) {
-                    showError("User data not found. Please login again.")
+                    Log.e("SmartAdvisory", "User data not found - showing error")
+                    showError(getString(R.string.user_data_not_found))
                     return@launch
                 }
                 
@@ -105,8 +118,11 @@ class SmartAdvisoryFragment : Fragment() {
                     null
                 }
                 
+                Log.d("SmartAdvisory", "Selected crop: " + selectedCrop + ", Sowing date: " + sowingDate)
+                
                 if (selectedCrop.isEmpty()) {
-                    showError("Please select a crop first")
+                    Log.e("SmartAdvisory", "No crop selected - showing error")
+                    showError(getString(R.string.please_select_crop))
                     return@launch
                 }
                 
@@ -120,7 +136,7 @@ class SmartAdvisoryFragment : Fragment() {
                 
                 // Update UI labels based on sowing date
                 if (sowingDate == null) {
-                    binding.growthStageTextView.text = "Not Sown Yet"
+                    binding.growthStageTextView.text = getString(R.string.not_sown_yet)
                 } else {
                     binding.growthStageTextView.text = growthStage.stageName
                 }
@@ -136,22 +152,34 @@ class SmartAdvisoryFragment : Fragment() {
                 // Update weather info
                 weatherData?.let {
                     binding.weatherCard.visibility = View.VISIBLE
-                    binding.temperatureTextView.text = "${it.temperature}°C"
-                    binding.humidityTextView.text = "${it.humidity}%"
+                    binding.temperatureTextView.text = it.temperature.toString() + "°C"
+                    binding.humidityTextView.text = it.humidity.toString() + "%"
                     binding.weatherConditionTextView.text = it.condition
                 }
                 
                 // Generate nudge cards based on stage
                 val cards = generateNudgeCards(selectedCrop, growthStage, weatherData)
-                nudgeCards.clear()
-                nudgeCards.addAll(cards)
-                nudgeAdapter.notifyDataSetChanged()
                 
+                // Update adapter data with more specific notifications
+                val oldSize = nudgeCards.size
+                nudgeCards.clear()
+                if (oldSize > 0) {
+                    nudgeAdapter.notifyItemRangeRemoved(0, oldSize)
+                }
+                
+                nudgeCards.addAll(cards)
+                nudgeAdapter.notifyItemRangeInserted(0, cards.size)
+                
+                // Always make sure content is visible after successful data loading
                 binding.contentScrollView.visibility = View.VISIBLE
                 binding.loadingProgressBar.visibility = View.GONE
+                binding.errorLayout.visibility = View.GONE
+                
+                Log.d("SmartAdvisory", "Successfully loaded " + cards.size + " advisory cards")
                 
             } catch (e: Exception) {
-                showError("Failed to load advisory: ${e.message}")
+                Log.e("SmartAdvisory", "Failed to load advisory", e)
+                showError(getString(R.string.failed_to_load_advisory) + ": " + e.message)
             } finally {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
@@ -234,10 +262,12 @@ class SmartAdvisoryFragment : Fragment() {
     }
     
     private fun generateNudgeCards(
-        crop: String,
+        cropName: String, // Renamed from 'crop' to avoid unused parameter warning
         stage: CropGrowthStage,
         weather: com.example.chinna.data.remote.WeatherData?
     ): List<NudgeCard> {
+        // Use cropName for logging or future enhancements
+        android.util.Log.d("SmartAdvisory", "Generating nudge cards for $cropName in ${stage.stageName} stage")
         val cards = mutableListOf<NudgeCard>()
         
         when (stage.stageNumber) {
@@ -449,7 +479,11 @@ class SmartAdvisoryFragment : Fragment() {
                 
                 // Get user data to personalize the response
                 val currentUser = userRepository.getCurrentUserSync()
-                val userName = currentUser?.name ?: "cvr" // Default to a generic name
+                // We'll use the user's name in future versions
+                // For now, log it for debugging
+                currentUser?.name?.let { name -> 
+                    android.util.Log.d("SmartAdvisory", "Generating advice for user: $name")
+                }
                 val crop = currentUser?.crop ?: prefsManager.getSelectedCrop() ?: ""
                 val pinCode = currentUser?.pinCode ?: "" // Get PIN code for weather lookup
                 val stage = binding.growthStageTextView.text.toString()
@@ -488,12 +522,26 @@ class SmartAdvisoryFragment : Fragment() {
     }
     
     private fun showError(message: String) {
-        binding.contentScrollView.visibility = View.GONE
+        // Keep content visible but show error overlay
+        binding.contentScrollView.visibility = View.VISIBLE
         binding.loadingProgressBar.visibility = View.GONE
         binding.errorLayout.visibility = View.VISIBLE
         binding.errorTextView.text = message
         
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+        // Log the error for debugging
+        Log.e("SmartAdvisory", "Error shown to user: " + message)
+        
+        try {
+            // Sometimes the fragment might not be attached when showing error
+            if (isAdded() && view != null) {
+                Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            Log.e("SmartAdvisory", "Error showing snackbar: " + e.message, e)
+        }
+        
+        // Always end refresh if active
+        binding.swipeRefreshLayout.isRefreshing = false
     }
     
     override fun onDestroyView() {

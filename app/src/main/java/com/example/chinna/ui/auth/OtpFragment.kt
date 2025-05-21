@@ -255,7 +255,7 @@ class OtpFragment : Fragment() {
                 sharedPref.edit().clear().apply()
                 
                 requireActivity().runOnUiThread {
-                    Toast.makeText(context, "Welcome, $name!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.welcome_user, name), Toast.LENGTH_SHORT).show()
                     navigateToHome()
                 }
             } catch (e: Exception) {
