@@ -48,11 +48,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.chinna"
+        applicationId = "com.movem.chinna"
         minSdk = 24  // Android 7.0
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 6
+        versionName = "1.0.5"
         multiDexEnabled = true  // Enable multidex
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

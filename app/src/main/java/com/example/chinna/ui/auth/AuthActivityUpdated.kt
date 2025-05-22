@@ -1,5 +1,6 @@
 package com.example.chinna.ui.auth
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -20,6 +21,7 @@ import com.example.chinna.ui.MainActivity
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -203,6 +205,9 @@ class AuthActivityUpdated : AppCompatActivity() {
         binding.mobileEntryLayout.root.visibility = View.VISIBLE
         binding.userDetailsLayout.root.visibility = View.GONE
         
+        // Show privacy notice on first launch
+        showPrivacyNotice()
+        
         // Set up the continue button click listener
         binding.mobileEntryLayout.btnContinue.setOnClickListener {
             val mobileNumber = binding.mobileEntryLayout.etMobile.text.toString().trim()
@@ -215,6 +220,37 @@ class AuthActivityUpdated : AppCompatActivity() {
                 // Check if user exists
                 checkIfUserExists(mobileNumber)
             }
+        }
+    }
+    
+    /**
+     * Show privacy notice to inform users about data storage
+     */
+    private fun showPrivacyNotice() {
+        val sharedPrefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val hasShownPrivacyNotice = sharedPrefs.getBoolean("privacy_notice_shown", false)
+        
+        if (!hasShownPrivacyNotice) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("📋 Data Storage Notice")
+                .setMessage("""
+                    Your farming data (name, crop details, acreage, etc.) is securely stored in the cloud for:
+                    
+                    ✅ Backup & sync across devices
+                    ✅ Personalized farming guidance  
+                    ✅ Data recovery if you change phones
+                    ✅ Works offline when needed
+                    
+                    We never share your personal farming information with third parties.
+                    
+                    Your data remains private and secure with Google Firebase.
+                """.trimIndent())
+                .setPositiveButton("I Understand") { dialog, which ->
+                    // Mark privacy notice as shown
+                    sharedPrefs.edit().putBoolean("privacy_notice_shown", true).apply()
+                }
+                .setCancelable(false)
+                .show()
         }
     }
     

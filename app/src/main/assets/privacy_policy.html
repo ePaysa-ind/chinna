@@ -44,12 +44,12 @@
 </head>
 <body>
     <h1>Privacy Policy - Chinna: AI Crop Assistant</h1>
-    <p>Last Updated: May 20, 2025</p>
+    <p>Last Updated: May 22, 2025</p>
 
     <p>Welcome to Chinna, an AI-powered crop assistant designed to help Indian farmers identify pests and diseases in their crops. Your privacy is important to us, and we want to be transparent about how we collect, use, and protect your information.</p>
 
     <div class="important">
-        <p><strong>Summary:</strong> Chinna collects minimal personal information (phone number, name, PIN code), uses your camera only for crop analysis, and stores most data locally on your device. We use Google's Gemini AI for crop analysis but do not share your personal information with third parties.</p>
+        <p><strong>Summary:</strong> Chinna collects minimal personal information (phone number, name, PIN code), uses your camera only for crop analysis, and stores your data securely in the cloud for backup and sync across devices. We use Google's Gemini AI for crop analysis but do not share your personal information with third parties.</p>
     </div>
 
     <h2>1. Information We Collect</h2>
@@ -60,6 +60,7 @@
         <li><strong>PIN Code:</strong> To provide location-relevant farming advice</li>
         <li><strong>Crop Information:</strong> The type of crops you're growing and when they were sown</li>
         <li><strong>Acreage:</strong> To tailor advice to your farming scale</li>
+        <li><strong>Soil Type:</strong> To provide soil-specific agricultural recommendations</li>
     </ul>
 
     <h3>1.2 Images and Media</h3>
@@ -73,6 +74,7 @@
     <ul>
         <li><strong>App Interactions:</strong> How you use the app's features</li>
         <li><strong>Analysis History:</strong> Records of previous pest/disease identifications</li>
+        <li><strong>Practice Records:</strong> Your crop management activities and schedules</li>
     </ul>
 
     <h2>2. How We Use Your Information</h2>
@@ -84,25 +86,40 @@
         <li>To store your preferences and settings</li>
         <li>To provide location-based weather data for your area</li>
         <li>To customize agricultural advice based on your soil type and local conditions</li>
+        <li>To backup your data for account recovery and device synchronization</li>
     </ul>
 
     <h2>3. Data Storage and Security</h2>
-    <h3>3.1 Local Storage</h3>
-    <p>Chinna prioritizes offline-first functionality. Most of your data, including:</p>
+    <h3>3.1 Cloud Storage (Primary)</h3>
+    <p>For reliability and data recovery, your farming data is securely stored in Google Firebase Cloud Firestore:</p>
     <ul>
-        <li>User information (name, PIN code, crop details)</li>
-        <li>Analysis history (recent scans with confidence scores)</li>
-        <li>Crop practice schedules</li>
+        <li><strong>User Profile:</strong> Name, PIN code, crop details, acreage, soil type</li>
+        <li><strong>Analysis History:</strong> Records of pest identifications with timestamps</li>
+        <li><strong>Practice Records:</strong> Your crop management schedules and activities</li>
+        <li><strong>Security:</strong> All data is encrypted in transit and at rest</li>
+        <li><strong>Access Control:</strong> Only you can access your data using your authenticated account</li>
+        <li><strong>Benefits:</strong> 
+            <ul>
+                <li>Data backup if you change phones</li>
+                <li>Sync across multiple devices</li>
+                <li>Recovery if app data is accidentally deleted</li>
+            </ul>
+        </li>
     </ul>
-    <p>is stored locally on your device, not on our servers.</p>
 
-    <h3>3.2 Firebase Services</h3>
+    <h3>3.2 Local Storage (Backup)</h3>
+    <p>For offline functionality, a copy of your data is also stored locally on your device to ensure the app works even without internet connectivity.</p>
+
+    <h3>3.3 Firebase Services</h3>
     <p>We use Firebase for:</p>
     <ul>
-        <li><strong>Authentication:</strong> To verify your phone number (Firebase Auth)</li>
+        <li><strong>Authentication:</strong> To verify your phone number securely</li>
+        <li><strong>Cloud Firestore:</strong> To store and sync your farming data</li>
+        <li><strong>App Check:</strong> To ensure app security and prevent abuse</li>
+        <li><strong>Crashlytics:</strong> To identify and fix app crashes (no personal data included)</li>
     </ul>
 
-    <h3>3.3 Google Services</h3>
+    <h3>3.4 Google Services</h3>
     <p>We use Google services for the following purposes:</p>
     <ul>
         <li><strong>Gemini AI:</strong> To analyze crop images. When you submit an image for analysis:
@@ -110,14 +127,14 @@
                 <li>Your image is securely transmitted to Google's Gemini AI service</li>
                 <li>The analysis results are returned to your device</li>
                 <li>No personally identifiable information is attached to images sent for analysis</li>
+                <li>Images are not stored by Google after analysis</li>
             </ul>
         </li>
         <li><strong>Weather API:</strong> To provide local weather data:
             <ul>
-                <li>Your device location or PIN code information may be used to fetch weather data</li>
-                <li>The app requests current weather conditions from Google Weather API</li>
-                <li>This information helps provide context-specific agricultural advice</li>
-                <li>Weather data is cached locally to reduce API calls</li>
+                <li>Your PIN code is used to fetch relevant weather information</li>
+                <li>Weather data helps provide context-specific agricultural advice</li>
+                <li>No personal information is shared with weather services</li>
             </ul>
         </li>
     </ul>
@@ -125,42 +142,64 @@
     <h2>4. Data Sharing</h2>
     <p>We do not sell or rent your personal information to third parties. Your information may be shared only in the following limited circumstances:</p>
     <ul>
-        <li><strong>Service Providers:</strong> With trusted services that help us operate (Firebase, Gemini AI)</li>
+        <li><strong>Service Providers:</strong> With trusted services that help us operate (Firebase, Gemini AI) under strict data protection agreements</li>
         <li><strong>Legal Requirements:</strong> When required by law or to protect rights and safety</li>
+        <li><strong>Aggregated Data:</strong> We may share anonymized, aggregated statistics about crop diseases and farming practices to help improve agricultural research (no personal information included)</li>
     </ul>
 
     <h2>5. Your Rights and Choices</h2>
     <p>You have the right to:</p>
     <ul>
-        <li>Access the personal information we hold about you</li>
-        <li>Request deletion of your data by uninstalling the app</li>
-        <li>Opt out of future communications</li>
-        <li>Update your information through the app settings</li>
+        <li><strong>Access:</strong> View all personal information we store about you</li>
+        <li><strong>Update:</strong> Modify your information through the app settings</li>
+        <li><strong>Delete:</strong> Request complete deletion of your account and all associated data</li>
+        <li><strong>Download:</strong> Export your farming data for personal use</li>
+        <li><strong>Offline Use:</strong> Use the app's core features without cloud sync by disabling internet access</li>
     </ul>
 
-    <h2>6. Permissions We Request</h2>
+    <h2>6. Language and Accessibility</h2>
+    <p>Chinna is currently available in English only. We are committed to serving Indian farmers and plan to add support for regional Indian languages in future updates based on user demand.</p>
+
+    <h2>7. Permissions We Request</h2>
     <ul>
-        <li><strong>Camera:</strong> To capture crop images for analysis</li>
-        <li><strong>Storage:</strong> To access your gallery for image selection</li>
-        <li><strong>Internet:</strong> For authentication, AI analysis, and weather services</li>
+        <li><strong>Camera:</strong> To capture crop images for pest/disease analysis</li>
+        <li><strong>Storage/Media:</strong> To access your gallery for image selection and save analysis results</li>
+        <li><strong>Internet:</strong> For authentication, cloud data sync, AI analysis, and weather services</li>
         <li><strong>Location:</strong> To provide location-specific weather data and agricultural advice</li>
     </ul>
 
-    <h2>7. Data Retention</h2>
-    <p>We retain your information for as long as your account is active or as needed to provide services. Most data is stored locally on your device and can be removed by clearing app data or uninstalling the app.</p>
+    <h2>8. Data Retention</h2>
+    <p>We retain your information as follows:</p>
+    <ul>
+        <li><strong>Active Accounts:</strong> Data is stored as long as your account remains active</li>
+        <li><strong>Inactive Accounts:</strong> Data is automatically deleted after 2 years of inactivity</li>
+        <li><strong>Deletion Requests:</strong> All data is permanently deleted within 30 days of your request</li>
+        <li><strong>Legal Requirements:</strong> Some data may be retained longer if required by law</li>
+    </ul>
 
-    <h2>8. Children's Privacy</h2>
-    <p>Our app is not directed at children under 13, and we do not knowingly collect personal information from children under 13.</p>
+    <h2>9. Children's Privacy</h2>
+    <p>Our app is not directed at children under 13, and we do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will take steps to delete it promptly.</p>
 
-    <h2>9. Changes to This Policy</h2>
-    <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy in the app and updating the "Last Updated" date.</p>
+    <h2>10. International Data Transfers</h2>
+    <p>Your data may be stored and processed in servers located outside India as part of Google Firebase infrastructure. We ensure that appropriate safeguards are in place to protect your data in accordance with applicable privacy laws.</p>
 
-    <h2>10. Contact Us</h2>
+    <h2>11. Changes to This Policy</h2>
+    <p>We may update this privacy policy from time to time to reflect changes in our practices or legal requirements. We will notify you of any material changes by:</p>
+    <ul>
+        <li>Posting the updated policy in the app</li>
+        <li>Updating the "Last Updated" date</li>
+        <li>Providing notice through the app interface for significant changes</li>
+    </ul>
+
+    <h2>12. Contact Us</h2>
     <p>If you have questions or concerns about this privacy policy or our data practices, please contact us at:</p>
-    <p>admin@movem.farm</p>
+    <p><strong>Email:</strong> privacy@movem.farm<br>
+    <strong>Address:</strong> Movem Technologies, Bengaluru, Karnataka, India</p>
+
+    <p>For data deletion requests or privacy inquiries, please include your registered phone number to help us locate your account.</p>
 
     <div class="date">
-        <p>Effective Date: May 20, 2025</p>
+        <p>Effective Date: May 22, 2025</p>
     </div>
 </body>
 </html>

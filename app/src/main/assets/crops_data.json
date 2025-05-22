@@ -1,0 +1,52 @@
+{
+  "crops": [
+    {
+      "id": "rice",
+      "name": "Rice",
+      "localName": "धान",
+      "description": "Primary cereal crop in India"
+    },
+    {
+      "id": "wheat",
+      "name": "Wheat",
+      "localName": "गेहूं", 
+      "description": "Major winter crop"
+    },
+    {
+      "id": "cotton",
+      "name": "Cotton",
+      "localName": "कपास",
+      "description": "Important cash crop"
+    },
+    {
+      "id": "tomato",
+      "name": "Tomato",
+      "localName": "टमाटर",
+      "description": "Popular vegetable crop"
+    },
+    {
+      "id": "chilli",
+      "name": "Chilli",
+      "localName": "मिर्च",
+      "description": "Spice crop with high demand"
+    },
+    {
+      "id": "okra",
+      "name": "Okra", 
+      "localName": "भिंडी",
+      "description": "Nutritious vegetable crop"
+    },
+    {
+      "id": "soybean",
+      "name": "Soybean",
+      "localName": "सोयाबीन",
+      "description": "Protein-rich oilseed crop"
+    },
+    {
+      "id": "corn",
+      "name": "Corn",
+      "localName": "मक्का",
+      "description": "Versatile cereal crop"
+    }
+  ]
+}

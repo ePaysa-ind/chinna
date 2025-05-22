@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.chinna.R
 import com.example.chinna.databinding.FragmentPracticesBinding
 import com.example.chinna.model.Crop
+import com.example.chinna.data.local.database.UserEntity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.datepicker.CalendarConstraints
@@ -115,41 +117,158 @@ class PracticesFragment : Fragment() {
         }
     }
     
+    /**
+     * Handle crop selection and show practices dialog
+     * This method includes comprehensive error handling and fallback mechanisms
+     */
     private fun showCropPracticesDialog(crop: Crop) {
-        // Skip the user input dialog and directly show practices
-        // Get user data from repository instead of asking again
+        Log.d("PracticesFragment", "🌾 User selected crop: ${crop.name}")
+        
+        // Show loading indicator to user
+        val loadingDialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Loading...")
+            .setMessage("Fetching your farming data...")
+            .setCancelable(false)
+            .create()
+        loadingDialog.show()
+        
         lifecycleScope.launch {
-            val currentUser = userRepository.getCurrentUserSync()
-            
-            currentUser?.let { user ->
-                // Format the sowing date (use current date if not available)
-                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                val sowingDate = if (user.sowingDate > 0) {
-                    dateFormat.format(Date(user.sowingDate))
+            try {
+                Log.d("PracticesFragment", "Fetching user data from repository...")
+                
+                // Step 1: Try to get current user data
+                val currentUser = userRepository.getCurrentUserSync()
+                
+                // Step 2: Dismiss loading dialog
+                loadingDialog.dismiss()
+                
+                if (currentUser != null) {
+                    Log.d("PracticesFragment", "✅ User data found: ${currentUser.name}, Mobile: ${currentUser.mobile}")
+                    
+                    // Step 3: Process user data and show practices
+                    processUserDataAndShowPractices(crop, currentUser)
+                    
                 } else {
-                    // If user doesn't have sowing date, use a default date (15 days ago)
+                    Log.w("PracticesFragment", "⚠️ No user data found - showing fallback dialog")
+                    
+                    // Step 4: Fallback - show user input dialog to collect basic info
+                    showFallbackUserInputDialog(crop)
+                }
+                
+            } catch (e: Exception) {
+                Log.e("PracticesFragment", "💥 Error loading user data: ${e.message}", e)
+                
+                // Dismiss loading dialog
+                loadingDialog.dismiss()
+                
+                // Step 5: Handle errors gracefully
+                handleUserDataError(crop, e)
+            }
+        }
+    }
+    
+    /**
+     * Process valid user data and display crop practices
+     */
+    private fun processUserDataAndShowPractices(crop: Crop, user: UserEntity) {
+        try {
+            Log.d("PracticesFragment", "Processing user data for ${crop.name} practices")
+            
+            // Format the sowing date with validation
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val sowingDate = when {
+                user.sowingDate > 0 -> {
+                    Log.d("PracticesFragment", "Using user's sowing date: ${Date(user.sowingDate)}")
+                    dateFormat.format(Date(user.sowingDate))
+                }
+                else -> {
+                    Log.d("PracticesFragment", "No sowing date found, using default (15 days ago)")
                     val calendar = Calendar.getInstance()
                     calendar.add(Calendar.DAY_OF_MONTH, -15)
                     dateFormat.format(calendar.time)
                 }
-                
-                // Save the selected crop
-                saveSelectedCrop(crop)
-                
-                // Show the practices directly
-                showActualPractices(crop, sowingDate)
-            } ?: run {
-                // If no user data available (shouldn't happen), use default values
+            }
+            
+            // Save the selected crop for future reference
+            saveSelectedCrop(crop)
+            
+            // Show the practices dialog
+            showActualPractices(crop, sowingDate)
+            
+            Log.d("PracticesFragment", "✅ Successfully displayed practices for ${crop.name}")
+            
+        } catch (e: Exception) {
+            Log.e("PracticesFragment", "💥 Error processing user data: ${e.message}", e)
+            showErrorMessage("Error processing your data. Please try again.")
+        }
+    }
+    
+    /**
+     * Show fallback user input dialog when no user data is available
+     */
+    private fun showFallbackUserInputDialog(crop: Crop) {
+        Log.d("PracticesFragment", "Showing fallback user input dialog for ${crop.name}")
+        
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Quick Setup Required")
+            .setMessage("We need some basic information to show you personalized farming practices.")
+            .setPositiveButton("Enter Details") { _, _ ->
+                showUserInputDialog(crop)
+            }
+            .setNegativeButton("Use Defaults") { _, _ ->
+                // Use default values and proceed
                 val calendar = Calendar.getInstance()
                 calendar.add(Calendar.DAY_OF_MONTH, -15)
                 val defaultSowingDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(calendar.time)
                 
-                // Save the selected crop
                 saveSelectedCrop(crop)
-                
-                // Show practices with default date
                 showActualPractices(crop, defaultSowingDate)
             }
+            .setCancelable(false)
+            .show()
+    }
+    
+    /**
+     * Handle errors during user data retrieval
+     */
+    private fun handleUserDataError(crop: Crop, error: Exception) {
+        Log.e("PracticesFragment", "Handling user data error: ${error.message}")
+        
+        val errorMessage = when {
+            error.message?.contains("network", ignoreCase = true) == true -> 
+                "Network error. Please check your internet connection and try again."
+            error.message?.contains("authentication", ignoreCase = true) == true -> 
+                "Authentication error. Please log in again."
+            else -> "Unable to load your data. You can still view general practices."
+        }
+        
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Data Loading Error")
+            .setMessage(errorMessage)
+            .setPositiveButton("Try Again") { _, _ ->
+                showCropPracticesDialog(crop) // Retry
+            }
+            .setNegativeButton("Continue Anyway") { _, _ ->
+                // Use default values and proceed
+                val calendar = Calendar.getInstance()
+                calendar.add(Calendar.DAY_OF_MONTH, -15)
+                val defaultSowingDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(calendar.time)
+                
+                saveSelectedCrop(crop)
+                showActualPractices(crop, defaultSowingDate)
+            }
+            .setCancelable(false)
+            .show()
+    }
+    
+    /**
+     * Show error message to user
+     */
+    private fun showErrorMessage(message: String) {
+        try {
+            android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Log.e("PracticesFragment", "Failed to show error message: ${e.message}")
         }
     }
     
