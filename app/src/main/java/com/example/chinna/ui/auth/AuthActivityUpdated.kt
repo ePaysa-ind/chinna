@@ -3,13 +3,13 @@ package com.example.chinna.ui.auth
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
+// import android.os.Handler // Unused
 import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Toast
+// import android.widget.Toast // Unused, using Snackbar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -27,13 +27,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
+// import com.google.firebase.firestore.FirebaseFirestore // Unused
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
-import java.io.File
+// import kotlinx.coroutines.delay // No longer using manual delay in onCreate
 import java.text.SimpleDateFormat
 import java.util.*
+// import java.io.File // clearCache method to be removed
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -54,153 +54,89 @@ class AuthActivityUpdated : AppCompatActivity() {
     private var isExistingUser = false
     private var existingUserData: UserEntity? = null
     
-    // Flag to prevent recreation loops
-    companion object {
-        private var IS_INITIALIZING = false
-    }
+    // Flag IS_INITIALIZING removed, relying on standard lifecycle and Hilt injection.
+    // companion object {
+    //     private var IS_INITIALIZING = false
+    // }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityAuthUpdatedBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         
-        // Prevent recreation loops
-        if (IS_INITIALIZING) {
-            Log.w("AuthActivity", "Already initializing, preventing recreation loop")
-            setContentView(R.layout.activity_auth_updated) // Set simple content view
-            Toast.makeText(this, "Loading authentication...", Toast.LENGTH_SHORT).show()
-            return
-        }
+        Log.d("AuthActivity", "onCreate called.")
         
-        IS_INITIALIZING = true
+        // Handle potential logout scenario first.
+        handleCleanLogin()
         
-        try {
-            // First inflate layout to avoid black screen on failure
-            binding = ActivityAuthUpdatedBinding.inflate(layoutInflater)
-            setContentView(binding.root)
-            
-            // Clear any existing Firebase connections
-            clearFirebaseConnections()
-            
-            // Add a longer delay to ensure Firebase is ready
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                try {
-                    initializeAuthentication()
-                    IS_INITIALIZING = false // Reset flag once initialization is complete
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    IS_INITIALIZING = false // Reset flag even on error
-                    showError("Error initializing authentication: ${e.message}")
-                }
-            }, 500) // Longer delay for stability with security rules
-        } catch (e: Exception) {
-            // Critical error handling - try to recover by showing a simple layout
-            e.printStackTrace()
-            IS_INITIALIZING = false // Reset flag on error
-            setContentView(R.layout.activity_auth_updated) // Fallback to XML inflation
-            
-            Toast.makeText(this, "Error initializing app: ${e.message}", Toast.LENGTH_LONG).show()
+        // Initialize authentication logic.
+        initializeAuthentication()
+    }
+    
+    private fun handleCleanLogin() {
+        val isCleanLogin = intent.getBooleanExtra("CLEAN_LOGIN", false)
+        if (isCleanLogin) {
+            Log.d("AuthActivity", "CLEAN_LOGIN intent extra is true. Signing out Firebase user.")
+            auth.signOut() // Sign out the user to ensure a fresh login state.
+            // Optionally, clear any other session-specific data here if needed.
+        } else {
+            Log.d("AuthActivity", "Normal app start or return to AuthActivity. Firebase session may persist if user was already logged in.")
         }
     }
     
-    private fun clearFirebaseConnections() {
-        try {
-            // Check if we're transitioning from a recent logout
-            val isAfterLogout = intent.getBooleanExtra("CLEAN_LOGIN", false)
-            
-            if (isAfterLogout) {
-                Log.d("AuthActivity", "Clean login after logout detected")
-                
-                // Only sign out if explicitly requested after logout
-                // This prevents clearing authentication state unintentionally
-                FirebaseAuth.getInstance().signOut()
-                Log.d("AuthActivity", "Cleared Firebase Auth state after logout")
-            } else {
-                Log.d("AuthActivity", "Normal login flow, preserving Firebase connections")
-            }
-        } catch (e: Exception) {
-            Log.e("AuthActivity", "Error handling Firebase connections: ${e.message}")
-        }
-    }
-    
-    // We no longer need this method as we're not forcibly clearing the cache
-    private fun clearCache(dir: File) {
-        // Method kept for compatibility but no longer used
-        Log.d("AuthActivity", "Cache clearing skipped to preserve authentication state")
-    }
+    // clearCache method removed as it was a stub and not used.
     
     private fun initializeAuthentication() {
-        try {
-            // Check if this is a clean login after logout
-            val isCleanLogin = intent.getBooleanExtra("CLEAN_LOGIN", false)
-            
-            // Initialize Firebase Auth if needed
-            if (!::auth.isInitialized) {
-                auth = FirebaseAuth.getInstance()
-            }
-            
-            // Simplified login based on local database only
-            if (isCleanLogin) {
-                Log.d("AuthActivity", "Clean login detected after logout")
-                
-                // Check if Firebase authentication is still active
-                if (auth.currentUser != null) {
-                    Log.d("AuthActivity", "Still authenticated in Firebase after logout")
-                    
-                    // Get phone number from current auth
-                    val mobileNumber = auth.currentUser?.phoneNumber?.replace("+91", "")
-                    if (!mobileNumber.isNullOrEmpty()) {
-                        // Check if we have this user locally
-                        lifecycleScope.launch {
-                            try {
-                                val user = userRepository.getUserByMobile(mobileNumber)
-                                if (user != null) {
-                                    Log.d("AuthActivity", "User data found in local database, navigating to main")
-                                    navigateToMain()
-                                    return@launch
-                                } else {
-                                    Log.d("AuthActivity", "User authenticated but not in local database, continuing to login flow")
-                                }
-                            } catch (e: Exception) {
-                                Log.e("AuthActivity", "Error checking for existing user: ${e.message}")
-                            }
+        // Hilt injects 'auth' and 'userRepository'.
+        // Check current Firebase authentication state.
+        val currentFirebaseUser = auth.currentUser
+
+        if (currentFirebaseUser != null) {
+            Log.d("AuthActivity", "User is already authenticated with Firebase: ${currentFirebaseUser.phoneNumber}")
+            val mobileNumber = currentFirebaseUser.phoneNumber?.replace("+91", "")
+            if (!mobileNumber.isNullOrEmpty()) {
+                lifecycleScope.launch {
+                    try {
+                        val user = userRepository.getUserByMobile(mobileNumber)
+                        if (user != null) {
+                            Log.d("AuthActivity", "User also found in local Room database. Navigating to MainActivity.")
+                            navigateToMain()
+                        } else {
+                            Log.w("AuthActivity", "User authenticated with Firebase but no profile in local Room DB. Proceeding to profile creation.")
+                            // User is authenticated but needs to create a local profile.
+                            // Pre-fill mobile, other fields will be empty.
+                            binding.mobileEntryLayout.etMobile.setText(mobileNumber)
+                            isExistingUser = false // Treat as new for profile form purposes
+                            existingUserData = null
+                            setupUserDetailsForNewUser() // Show details form
+                            binding.mobileEntryLayout.root.visibility = View.GONE
+                            binding.userDetailsLayout.root.visibility = View.VISIBLE
+                            observeViewModel() // Start observing for save operation
                         }
+                    } catch (e: Exception) {
+                        Log.e("AuthActivity", "Error checking local database for authenticated user: ${e.message}", e)
+                        showError("Error accessing local user data: ${e.message}")
+                        // Fallback to showing initial view if DB check fails
+                        setupInitialUiVisible()
+                        observeViewModel()
                     }
                 }
             } else {
-                // Normal login flow - auto-login if authenticated
-                if (auth.currentUser != null) {
-                    val mobileNumber = auth.currentUser?.phoneNumber?.replace("+91", "")
-                    if (!mobileNumber.isNullOrEmpty()) {
-                        // Check if user exists in local database
-                        lifecycleScope.launch {
-                            try {
-                                val user = userRepository.getUserByMobile(mobileNumber)
-                                if (user != null) {
-                                    Log.d("AuthActivity", "User authenticated and found in database, navigating to main")
-                                    navigateToMain()
-                                    return@launch
-                                } else {
-                                    Log.d("AuthActivity", "User authenticated but not in database, will show form")
-                                }
-                            } catch (e: Exception) {
-                                Log.e("AuthActivity", "Error checking local database: ${e.message}")
-                            }
-                        }
-                    } else {
-                        navigateToMain()
-                        return
-                    }
-                }
+                // Firebase user exists but phone number is null/empty (should not happen with phone auth).
+                Log.e("AuthActivity", "Firebase user exists but phone number is missing. Forcing new login.")
+                setupInitialUiVisible()
+                observeViewModel()
             }
-            
-            setupInitialView()
+        } else {
+            // No Firebase user authenticated, proceed with normal login/registration flow.
+            Log.d("AuthActivity", "No Firebase user authenticated. Showing initial login/registration view.")
+            setupInitialUiVisible()
             observeViewModel()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            showError("Authentication error: ${e.message}")
         }
     }
     
-    private fun setupInitialView() {
+    private fun setupInitialUiVisible() {
+        // Renamed from setupInitialView to avoid confusion with view model setup
         // First, only show the mobile entry layout
         binding.mobileEntryLayout.root.visibility = View.VISIBLE
         binding.userDetailsLayout.root.visibility = View.GONE
@@ -213,12 +149,9 @@ class AuthActivityUpdated : AppCompatActivity() {
             val mobileNumber = binding.mobileEntryLayout.etMobile.text.toString().trim()
             
             if (validateMobileNumber(mobileNumber)) {
-                // Show loading indicator
                 binding.mobileEntryLayout.progressBar.visibility = View.VISIBLE
                 binding.mobileEntryLayout.btnContinue.isEnabled = false
-                
-                // Check if user exists
-                checkIfUserExists(mobileNumber)
+                checkIfUserExists(mobileNumber) // This will handle UI transitions
             }
         }
     }
@@ -262,94 +195,77 @@ class AuthActivityUpdated : AppCompatActivity() {
         return true
     }
     
-    private fun checkIfUserExists(mobile: String) {
-        // First, check if this user is already logged in with Firebase Auth
-        val formattedMobile = "+91" + mobile
-        val currentUser = auth.currentUser
+    private fun checkIfUserExists(mobileNumberInput: String) {
+        val formattedMobileForFirebase = "+91$mobileNumberInput"
+        val currentFirebaseUser = auth.currentUser
         
-        // Log current Firebase Auth state for debugging
-        Log.d("AuthActivity", "Current Firebase user: " + (currentUser?.phoneNumber ?: "null"))
-        
-        // If the current user is already authenticated with same mobile number, skip OTP
-        if (currentUser != null && currentUser.phoneNumber == formattedMobile) {
-            Log.d("AuthActivity", "User already authenticated in Firebase, checking database")
-            
-            // Already logged into Firebase with this number, check local database
-            lifecycleScope.launch {
-                try {
-                    // Check if we have user data in local database
-                    val user = userRepository.getUserByMobile(mobile)
-                    
-                    if (user != null) {
-                        // User exists in both Firebase and local database - go straight to main screen
-                        Log.d("AuthActivity", "User exists in both Firebase Auth and database, navigating to main")
+        binding.mobileEntryLayout.progressBar.visibility = View.VISIBLE
+        binding.mobileEntryLayout.btnContinue.isEnabled = false
+
+        lifecycleScope.launch {
+            try {
+                // Scenario 1: Firebase user is authenticated AND matches the input mobile number
+                if (currentFirebaseUser != null && currentFirebaseUser.phoneNumber == formattedMobileForFirebase) {
+                    Log.d("AuthActivity", "Firebase user authenticated and matches input mobile: $formattedMobileForFirebase. Checking local DB.")
+                    val localUser = userRepository.getUserByMobile(mobileNumberInput)
+                    if (localUser != null) {
+                        Log.d("AuthActivity", "User also found in local DB. Navigating to Main.")
                         navigateToMain()
-                        return@launch
+                        return@launch // Skip further UI changes if navigating away
                     } else {
-                        // User authenticated in Firebase but not in local database
-                        // Show the user details form to collect missing information
-                        Log.w("AuthActivity", "User authenticated in Firebase but not found in database")
-                        isExistingUser = false
+                        Log.w("AuthActivity", "Firebase authenticated user not in local DB. Proceed to profile creation.")
+                        isExistingUser = false // Needs to create profile
                         existingUserData = null
-                        setupUserDetailsForNewUser()
-                        binding.mobileEntryLayout.root.visibility = View.GONE
-                        binding.userDetailsLayout.root.visibility = View.VISIBLE
+                        // Mobile number is known and verified by Firebase
+                        binding.mobileEntryLayout.etMobile.setText(mobileNumberInput) // Ensure it's set for prefill
+                        setupUserDetailsForNewUser() // Show details form for profile creation
+                        // No OTP needed as Firebase already verified this number session.
+                        // However, current flow has Send OTP button in userDetailsLayout.
+                        // For simplicity, we'll let it proceed to OTP if they click "Send OTP"
+                        // or consider a direct save if Firebase auth is deemed sufficient.
+                        // For now, let's assume they might want to re-verify or it's a new device.
+                        // So, showing userDetailsLayout is appropriate.
+                        binding.userDetailsLayout.tvUserStatus.text = "Complete your profile. Mobile number verified."
                     }
-                } catch (e: Exception) {
-                    Log.e("AuthActivity", "Error checking user in database: ${e.message}")
-                    showError("Error checking user data: " + e.message)
-                    binding.mobileEntryLayout.progressBar.visibility = View.GONE
-                    binding.mobileEntryLayout.btnContinue.isEnabled = true
-                }
-            }
-        } else {
-            // Not authenticated with Firebase or different number, check local database for pre-fill
-            Log.d("AuthActivity", "User not authenticated in Firebase, checking database")
-            lifecycleScope.launch {
-                try {
-                    val user = userRepository.getUserByMobile(mobile)
-                    
-                    if (user != null) {
-                        // Existing user found in database but not authenticated
-                        Log.d("AuthActivity", "User found in database, preparing details form")
+                } else {
+                    // Scenario 2: No Firebase user / Firebase user does not match input mobile.
+                    // This means we need to verify the entered mobile number via OTP.
+                    // But first, check local DB to prefill details if user exists locally.
+                    Log.d("AuthActivity", "No matching Firebase user. Checking local DB for mobile: $mobileNumberInput to prefill details.")
+                    val localUser = userRepository.getUserByMobile(mobileNumberInput)
+                    if (localUser != null) {
+                        Log.d("AuthActivity", "User found in local DB. Prefilling details.")
                         isExistingUser = true
-                        existingUserData = user
-                        setupUserDetailsWithExistingData(user)
+                        existingUserData = localUser
+                        setupUserDetailsWithExistingData(localUser)
                     } else {
-                        // New user
-                        Log.d("AuthActivity", "New user, showing empty details form")
+                        Log.d("AuthActivity", "New user (not in Firebase, not in local DB). Showing empty details form.")
                         isExistingUser = false
                         existingUserData = null
                         setupUserDetailsForNewUser()
                     }
-                    
-                    // Switch to user details view
-                    binding.mobileEntryLayout.root.visibility = View.GONE
-                    binding.userDetailsLayout.root.visibility = View.VISIBLE
-                    
-                } catch (e: Exception) {
-                    Log.e("AuthActivity", "Error checking user: " + e.message)
-                    showError("Error checking user data: " + e.message)
-                    binding.mobileEntryLayout.progressBar.visibility = View.GONE
-                    binding.mobileEntryLayout.btnContinue.isEnabled = true
                 }
+
+                // Transition to user details view (common for both sub-scenarios of Scenario 2, and for profile creation in Scenario 1)
+                binding.mobileEntryLayout.root.visibility = View.GONE
+                binding.userDetailsLayout.root.visibility = View.VISIBLE
+
+            } catch (e: Exception) {
+                Log.e("AuthActivity", "Error in checkIfUserExists: ${e.message}", e)
+                showError("Error checking user data: ${e.message}")
+            } finally {
+                binding.mobileEntryLayout.progressBar.visibility = View.GONE
+                binding.mobileEntryLayout.btnContinue.isEnabled = true
             }
         }
     }
     
-    /**
-     * This method is kept as a stub for compatibility
-     * We no longer sync with Firestore - all user data is stored locally
-     */
-    private fun tryFirestoreSyncForMobile(mobile: String) {
-        // No longer trying to sync with Firestore
-        Log.d("AuthActivity", "Firestore sync disabled - using local data only")
-    }
+    // tryFirestoreSyncForMobile method removed as it was a stub and Firestore sync is no longer used for user profiles.
     
     private fun setupUserDetailsWithExistingData(user: UserEntity) {
         // Show message that user exists
         binding.userDetailsLayout.tvUserStatus.visibility = View.VISIBLE
-        binding.userDetailsLayout.tvUserStatus.text = "Welcome back! Please verify your information."
+        binding.userDetailsLayout.tvUserStatus.text = "Welcome back! Please verify your details and proceed." // Updated message
         
         // Prefill the form with existing data
         binding.userDetailsLayout.etName.setText(user.name)
@@ -371,9 +287,14 @@ class AuthActivityUpdated : AppCompatActivity() {
     private fun setupUserDetailsForNewUser() {
         // Show message for new user
         binding.userDetailsLayout.tvUserStatus.visibility = View.VISIBLE
-        binding.userDetailsLayout.tvUserStatus.text = "Welcome! Please complete your profile."
+        // Message updated for clarity, especially if mobile was pre-filled due to Firebase auth
+        if (auth.currentUser != null && auth.currentUser?.phoneNumber?.replace("+91", "") == binding.mobileEntryLayout.etMobile.text.toString()) {
+            binding.userDetailsLayout.tvUserStatus.text = "Mobile verified. Please complete your profile."
+        } else {
+            binding.userDetailsLayout.tvUserStatus.text = "New user? Please fill in your details."
+        }
         
-        // Clear all fields
+        // Clear all fields (except mobile if pre-filled from Firebase Auth)
         binding.userDetailsLayout.etName.setText("")
         binding.userDetailsLayout.etPincode.setText("")
         binding.userDetailsLayout.etAcreage.setText("")
@@ -434,10 +355,13 @@ class AuthActivityUpdated : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val input = s.toString()
                 if (input.length == 6 && !input.matches(pinCodePattern)) {
-                    binding.userDetailsLayout.etPincode.error = "Invalid PIN code format"
-                    showError("PIN code must start with 1-9 followed by 5 digits")
-                } else {
+                    binding.userDetailsLayout.etPincode.error = "Invalid PIN code format. Must start with 1-9."
+                    // showError("PIN code must start with 1-9 followed by 5 digits") // Removed, rely on setError for field
+                } else if (input.length < 6 && binding.userDetailsLayout.etPincode.error != null) {
+                    // Clear error if user is correcting and length is no longer 6 to avoid persistent premature error
                     binding.userDetailsLayout.etPincode.error = null
+                } else if (input.length == 6 && input.matches(pinCodePattern)) {
+                    binding.userDetailsLayout.etPincode.error = null // Clear error on valid input
                 }
             }
             override fun afterTextChanged(s: android.text.Editable?) {}
@@ -615,8 +539,10 @@ class AuthActivityUpdated : AppCompatActivity() {
                 is AuthViewModel.AuthState.Loading -> {
                     // Show loading
                     binding.userDetailsLayout.btnSendOtp.isEnabled = false
+                    // Optionally show a global progress bar here if btnSendOtp is not the primary indicator
                 }
                 is AuthViewModel.AuthState.Success -> {
+                    Log.d("AuthActivity", "ViewModel AuthState.Success: Navigating to MainActivity.")
                     navigateToMain()
                 }
                 is AuthViewModel.AuthState.Error -> {
@@ -628,12 +554,23 @@ class AuthActivityUpdated : AppCompatActivity() {
     }
     
     private fun navigateToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
+        // Ensure this is called on the main thread if there's any doubt
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            Log.d("AuthActivity", "Navigating to MainActivity.")
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        } else {
+            Log.w("AuthActivity", "navigateToMain called from non-UI thread. Posting to main thread.")
+            runOnUiThread {
+                Log.d("AuthActivity", "Navigating to MainActivity (from non-UI thread).")
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
+        }
     }
     
     private fun showError(message: String) {
-        android.util.Log.e("AuthActivity", message)
+        Log.e("AuthActivity", "Displaying error: $message") // Keep Android Log for debugging
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 }

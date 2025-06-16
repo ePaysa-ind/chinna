@@ -23,7 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.File
+// import java.io.File // Unused import
 import javax.inject.Inject
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -194,49 +194,64 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         // Save current time when app goes to background
         val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putLong(KEY_LAST_ACTIVITY, System.currentTimeMillis()).apply()
+        val currentTime = System.currentTimeMillis()
+        prefs.edit().putLong(KEY_LAST_ACTIVITY, currentTime).apply()
+        lastActivityTime = currentTime // Ensure lastActivityTime is also updated
+        Log.d("MainActivity", "onPause - Saved lastActivityTime: $lastActivityTime")
         
-        // Remove any pending session checks
+        // Remove any pending session checks to prevent them from firing while paused
         sessionHandler.removeCallbacksAndMessages(null)
+        Log.d("MainActivity", "onPause - Removed session handler callbacks.")
     }
     
     override fun onResume() {
         super.onResume()
-        // Update last activity time
+        // Update last activity time upon resuming
         lastActivityTime = System.currentTimeMillis()
         
         // Save current time to preferences
         val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         prefs.edit().putLong(KEY_LAST_ACTIVITY, lastActivityTime).apply()
+        Log.d("MainActivity", "onResume - Updated lastActivityTime: $lastActivityTime")
         
-        // Schedule a session check after timeout
-        sessionHandler.postDelayed({
-            checkSessionTimeout()
-        }, SESSION_WARNING - (System.currentTimeMillis() - lastActivityTime))
+        // Schedule a session warning check.
+        // If onResume is called multiple times, previous callbacks are removed in onPause.
+        sessionHandler.postDelayed(this::checkSessionStatus, SESSION_WARNING)
+        Log.d("MainActivity", "onResume - Scheduled session warning check for ${SESSION_WARNING / 60000} minutes.")
     }
     
     /**
-     * Check if session has timed out and show warning or logout
+     * Checks the user's session status.
+     * If the session has timed out, triggers logout.
+     * If the session is close to timeout (warning period), shows a warning dialog.
+     * Otherwise, schedules the next check.
      */
-    private fun checkSessionTimeout() {
+    private fun checkSessionStatus() {
         try {
             val currentTime = System.currentTimeMillis()
-            val elapsedTime = currentTime - lastActivityTime
+            val elapsedTimeSinceLastActive = currentTime - lastActivityTime
             
-            if (elapsedTime >= SESSION_TIMEOUT) {
-                // Auto logout at timeout
+            Log.d("MainActivity", "checkSessionStatus - Elapsed time: ${elapsedTimeSinceLastActive / 1000}s, Timeout: ${SESSION_TIMEOUT / 1000}s, Warning: ${SESSION_WARNING / 1000}s")
+
+            if (elapsedTimeSinceLastActive >= SESSION_TIMEOUT) {
+                Log.i("MainActivity", "Session timeout reached. Logging out.")
                 logout()
-            } else if (elapsedTime >= SESSION_WARNING) {
-                // Show warning dialog
+            } else if (elapsedTimeSinceLastActive >= SESSION_WARNING) {
+                Log.i("MainActivity", "Session warning period reached. Showing warning dialog.")
                 showSessionWarningDialog()
-                
-                // Check again after 1 minute
-                sessionHandler.postDelayed({
-                    checkSessionTimeout()
-                }, 60000)
+                // Schedule next check to catch the actual timeout if user doesn't interact
+                val timeRemainingToTimeout = SESSION_TIMEOUT - elapsedTimeSinceLastActive
+                sessionHandler.postDelayed(this::checkSessionStatus, timeRemainingToTimeout.coerceAtLeast(1000L)) // Check at least after 1s
+                Log.d("MainActivity", "Scheduled next session check in ${timeRemainingToTimeout / 1000}s")
+            } else {
+                // This case should ideally not be reached if called only from the warning threshold onwards.
+                // However, as a safeguard, reschedule for the warning period from now.
+                val nextCheckDelay = SESSION_WARNING - elapsedTimeSinceLastActive
+                sessionHandler.postDelayed(this::checkSessionStatus, nextCheckDelay.coerceAtLeast(SESSION_WARNING)) // Ensure it's not too frequent
+                Log.d("MainActivity", "Session still active. Rescheduling warning check in ${nextCheckDelay / 60000} minutes.")
             }
         } catch (e: Exception) {
-            android.util.Log.e("MainActivity", "Error checking session", e)
+            Log.e("MainActivity", "Error checking session status", e)
         }
     }
     
@@ -248,13 +263,22 @@ class MainActivity : AppCompatActivity() {
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this, R.style.Theme_Chinna_SessionDialog)
             .setTitle("Session Expiring Soon")
             .setMessage("Your session will expire in 2 minutes due to inactivity. Would you like to stay logged in?")
-            .setPositiveButton("STAY LOGGED IN") { _, _ ->
-                // Reset activity timer
+            .setPositiveButton("STAY LOGGED IN") { dialog, _ ->
+                // User chose to stay logged in, reset activity timer and reschedule check
                 lastActivityTime = System.currentTimeMillis()
                 val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
                 prefs.edit().putLong(KEY_LAST_ACTIVITY, lastActivityTime).apply()
+                Log.d("MainActivity", "User chose to stay logged in. Reset lastActivityTime to $lastActivityTime")
+
+                // Clear previous callbacks and schedule a new warning check
+                sessionHandler.removeCallbacksAndMessages(null)
+                sessionHandler.postDelayed(this::checkSessionStatus, SESSION_WARNING)
+                Log.d("MainActivity", "Rescheduled session warning check for ${SESSION_WARNING / 60000} minutes.")
+                dialog.dismiss()
             }
-            .setNegativeButton("LOGOUT NOW") { _, _ ->
+            .setNegativeButton("LOGOUT NOW") { dialog, _ ->
+                Log.d("MainActivity", "User chose to logout from session warning dialog.")
+                dialog.dismiss()
                 logout()
             }
             .create()
@@ -287,97 +311,96 @@ class MainActivity : AppCompatActivity() {
     private var isLoggingOut = false
     
     private fun logout() {
-        // Prevent multiple logout calls
+        // Prevent multiple logout calls.
         if (isLoggingOut) {
-            Log.w("MainActivity", "Logout already in progress")
+            Log.w("MainActivity", "Logout already in progress. Ignoring additional call.")
             return
         }
-        
         isLoggingOut = true
-        
-        try {
-            // Show a progress dialog to prevent user interaction during logout
-            val progressDialog = androidx.appcompat.app.AlertDialog.Builder(this, R.style.Theme_Chinna_Dialog)
-                .setTitle("Logging Out")
-                .setMessage("Please wait...")
-                .setCancelable(false)
-                .create()
-            progressDialog.show()
-            
-            // IMPORTANT: The order matters because of Firebase Security Rules
-            // 1. First disconnect any Firebase listeners/observers 
-            //    to prevent security rule violations during logout
-            disableAllFirebaseListeners()
-            
-            // 2. Only clear session-related preferences, not all preferences
-            // This preserves user preferences while ending the session
-            getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().remove(KEY_LAST_ACTIVITY).apply()
-            
-            // 3. Clear local repository data BEFORE signing out
-            //    (this ensures we're not making authenticated requests after token invalidation)
-            lifecycleScope.launch {
-                try {
-                    // Clear local data first while still authenticated
-                    userRepository.logout()
-                    
-                    // 4. NOW sign out of Firebase (after all data operations)
-                    val auth = FirebaseAuth.getInstance()
-                    auth.signOut()
-                    
-                    // No longer clearing Firebase cache to preserve data for future logins
-                    // This allows user data to be retrieved when using the same phone number
-                    Log.d("MainActivity", "Skipping Firebase cache clear to preserve data for future sessions")
-                    
-                    // Navigate to login with longer delay to ensure all cleanup is complete
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        progressDialog.dismiss()
-                        navigateToLogin()
-                    }, 800) // Even longer delay for stability with security rules
-                } catch (e: Exception) {
-                    Log.e("MainActivity", "Error during logout: ${e.message}", e)
+        Log.i("MainActivity", "Logout process started.")
+
+        // Stop any pending session checks immediately.
+        sessionHandler.removeCallbacksAndMessages(null)
+        Log.d("MainActivity", "Cleared session handler callbacks during logout.")
+
+        // Show a progress dialog.
+        val progressDialog = androidx.appcompat.app.AlertDialog.Builder(this, R.style.Theme_Chinna_Dialog)
+            .setTitle("Logging Out")
+            .setMessage("Please wait...")
+            .setCancelable(false)
+            .create()
+        progressDialog.show()
+
+        // Perform logout operations.
+        lifecycleScope.launch {
+            try {
+                // 1. Disable Firestore network access if this is a desired general policy during logout.
+                // This step is kept based on original logic but should be reviewed if other Firebase services need active network.
+                disableFirestoreNetwork() // Renamed for clarity
+
+                // 2. Clear session-related preferences.
+                getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().remove(KEY_LAST_ACTIVITY).apply()
+                Log.d("MainActivity", "Cleared session activity time from SharedPreferences.")
+
+                // 3. Perform UserRepository logout actions (e.g., clear specific user prefs, not DB data).
+                userRepository.logout() // This now clears PrefsManager.saveUserLoggedIn(false)
+                Log.d("MainActivity", "UserRepository logout completed (cleared login status).")
+
+                // 4. Sign out from Firebase Authentication.
+                FirebaseAuth.getInstance().signOut()
+                Log.i("MainActivity", "Firebase Auth signOut successful.")
+
+                // User data in Room DB is intentionally preserved by UserRepository.logout().
+                // The old comment about "Skipping Firebase cache clear" is less relevant now as data is primarily local.
+                Log.d("MainActivity", "Local user data in Room is preserved as per design.")
+
+                // Navigate to login. The delay is kept from original logic, consider reducing if possible.
+                Handler(Looper.getMainLooper()).postDelayed({
                     progressDialog.dismiss()
-                    isLoggingOut = false
-                    showError("Logout failed: ${e.message}")
-                }
+                    navigateToLogin()
+                }, 800) // Original delay for "stability"
+
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error during logout sequence: ${e.message}", e)
+                progressDialog.dismiss()
+                showError("Logout failed: ${e.message}")
+                isLoggingOut = false // Reset flag on error to allow retry if appropriate
             }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Failed to logout: ${e.message}", e)
-            isLoggingOut = false
-            showError("Logout failed: ${e.message}")
         }
     }
     
-    // Disconnect any Firebase listeners to prevent security rule violations
-    private fun disableAllFirebaseListeners() {
+    /**
+     * Disables Firestore network access.
+     * This is a general measure. If other Firebase services (not user-data related)
+     * rely on Firestore network, this might be too broad.
+     * Kept from original logic, assuming it's an intentional policy for logout.
+     */
+    private fun disableFirestoreNetwork() {
         try {
-            // Cancel any pending Firestore listeners/operations
-            val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-            
-            // We're no longer using Firestore for user data, 
-            // but still disable network since we're not using it
-            firestore.disableNetwork().addOnSuccessListener {
-                Log.d("MainActivity", "Firestore network disabled - user data stored locally only")
+            FirebaseFirestore.getInstance().disableNetwork().addOnSuccessListener {
+                Log.i("MainActivity", "Firestore network access disabled successfully.")
             }.addOnFailureListener { e ->
-                Log.e("MainActivity", "Error disabling Firestore network: ${e.message}", e)
+                Log.w("MainActivity", "Failed to disable Firestore network access: ${e.message}", e)
             }
         } catch (e: Exception) {
-            Log.e("MainActivity", "Error disabling Firebase listeners: ${e.message}", e)
+            Log.e("MainActivity", "Exception while trying to disable Firestore network: ${e.message}", e)
         }
     }
     
-    private fun clearDirectory(dir: File) {
-        if (dir.exists() && dir.isDirectory) {
-            val files = dir.listFiles()
-            if (files != null) {
-                for (file in files) {
-                    if (file.isDirectory) {
-                        clearDirectory(file)
-                    }
-                    file.delete()
-                }
-            }
-        }
-    }
+    // clearDirectory method appears to be unused. Removing it.
+    // private fun clearDirectory(dir: File) {
+    //     if (dir.exists() && dir.isDirectory) {
+    //         val files = dir.listFiles()
+    //         if (files != null) {
+    //             for (file in files) {
+    //                 if (file.isDirectory) {
+    //                     clearDirectory(file)
+    //                 }
+    //                 file.delete()
+    //             }
+    //         }
+    //     }
+    // }
     
     private fun showError(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
